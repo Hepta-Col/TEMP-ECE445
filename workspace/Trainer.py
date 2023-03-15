@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from utils import get_weather_dataloader
-from Forecaster import Forecaster
+from Model import Forecaster
 from common import measures
 from tqdm import tqdm
 
@@ -10,6 +10,29 @@ class Trainer(object):
     def __init__(self, args) -> None:
         self.args = args
 
+    def train(self):
+        for epoch in range(self.args.num_epochs):
+            print(f"EPOCH {epoch} ---------------------------------------------------")
+            print("Training...")
+            self._train()
+            if self._eval_needed(epoch):
+                print("Evaluating...")
+                self._eval()
+
+    def _train(self):
+        pass
+
+    def _eval(self):
+        pass
+
+    def _eval_needed(self, epoch):
+        pass
+
+
+class ForecasterTrainer(Trainer):
+    def __init__(self, args) -> None:
+        super().__init__(args)
+        
         self.train_dataloaders = {m: get_weather_dataloader(args, type='train', measure_of_interest=m) for m in measures}
         self.test_dataloader = {m: get_weather_dataloader(args, type='test', measure_of_interest=m) for m in measures}
 
@@ -20,15 +43,6 @@ class Trainer(object):
 
         self.train_loss_records = {m: [] for m in measures}
         self.test_loss_records = {m: [] for m in measures}
-
-    def train(self):
-        for epoch in range(self.args.num_epochs):
-            print(f"EPOCH {epoch} ---------------------------------------------------")
-            print("Training...")
-            self._train()
-            if self._eval_needed(epoch):
-                print("Evaluating...")
-                self._eval()
 
     def _train(self):
         for m in measures:
@@ -59,3 +73,17 @@ class Trainer(object):
 
     def _eval_needed(self, epoch):
         return (epoch + 1) % self.args.eval_interval == 0
+
+
+class ClassifierTrainer(Trainer):
+    def __init__(self, args) -> None:
+        super().__init__(args)
+
+    def _train(self):
+        return super()._train()
+    
+    def _eval(self):
+        return super()._eval()
+
+    def _eval_needed(self, epoch):
+        return super()._eval_needed(epoch)

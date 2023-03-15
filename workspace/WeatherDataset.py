@@ -9,7 +9,7 @@ from typing import List, Dict
 from common import attributes_of_interest, measures
 
 
-class WeatherDataset(Dataset):
+class AutoRegressionDataset(Dataset):
     def __init__(self, args, measure_of_interest) -> None:
         super().__init__()
 
@@ -41,3 +41,14 @@ class WeatherDataset(Dataset):
             ret.append({'seq': seq, 'tgt': tgt})
 
         return ret
+
+
+class ClassificationDataset(Dataset):
+    def __init__(self) -> None:
+        super().__init__()
+
+    def __getitem__(self, index):
+        return super().__getitem__(index)
+    
+    def __len__():
+        pass
