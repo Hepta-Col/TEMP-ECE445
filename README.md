@@ -14,4 +14,5 @@ Repo for ECE 445 project: ML-based real-time weather forecasting system on Raspb
 
 # Links
 * [Group Doc](https://docs.qq.com/doc/DWnpJWGx1enRPWFVs)
+* [Zhenting’s Weekly Update](https://docs.qq.com/doc/DWkhxdXRTR2tXbGZT?&u=6e54e661ed9845b7a263b69879ff5b26)
 * to be continued...
