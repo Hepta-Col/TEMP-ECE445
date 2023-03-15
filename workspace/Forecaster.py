@@ -16,7 +16,7 @@ class Forecaster(nn.Module):
         # first dense after lstm
         self.fc = nn.Linear(args.hidden_size * args.look_back_window, args.hidden_size)
 
-        self.last_dropout = nn.Dropout(p=args.last_drop_rate)
+        self.last_dropout = nn.Dropout(args.last_drop_rate)
 
         # Create fully connected layers (hidden_size x num_deep_layers)
         dnn_layers = []
@@ -30,17 +30,17 @@ class Forecaster(nn.Module):
                 dnn_layers.append(nn.ReLU())
                 dnn_layers.append(nn.Linear(args.hidden_size, args.hidden_size))
                 dnn_layers.append(nn.Dropout(args.mid_drop_rate))
-        # compile DNN layers
         self.dnn = nn.Sequential(*dnn_layers)
 
     def forward(self, x):
-        # Initialize hidden state
-        hidden_state = torch.zeros(self.args.num_deep_layerss, x.shape[0], self.args.hidden_size)
-        cell_state = torch.zeros(self.args.num_deep_layers, x.shape[0], self.args.hidden_size)
-
+        """
+        x: [batch size, sequence length, input size]
+        """
         # Forward Pass
-        x, h = self.lstm(x, (hidden_state, cell_state)) # LSTM
-        x = self.dropout(x.contiguous().view(x.shape[0], -1)) # Flatten lstm out 
-        x = self.fc(x) # First Dense
-        return self.dnn(x) # Pass forward through fully connected DNN.
+        x, _ = self.lstm(x) # x: [batch size, sequence length, hidden size]
+        x = x.contiguous().view(x.shape[0], -1) # x: [batch size, sequence length * hidden size]
+        x = self.last_dropout(x)
+        x = self.fc(x) # x: [batch size, hidden size]
+        x = self.dnn(x) # x: [batch size, prediction window size]
+        return x
     
