@@ -1,4 +1,4 @@
 attributes_of_interest = ['dt', 'temp', 'pressure',
-                          'humidity', 'wind_speed', 'weather_description']
+                          'humidity', 'wind_speed', 'rain_1h', 'weather_description']
 
-measures = ['temp', 'pressure', 'humidity', 'wind_speed']
+measures = ['temp', 'pressure', 'humidity', 'wind_speed', 'rain_1h']
