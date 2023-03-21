@@ -1,54 +1,69 @@
 import pdb
-import os
 import torch
-import torch.nn as nn
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
-from tqdm import tqdm, trange
 from typing import List, Dict
-from common import attributes_of_interest, measures
+from datetime import datetime
+from common import *
 
 
 class AutoRegressionDataset(Dataset):
-    def __init__(self, args, measure_of_interest) -> None:
+    def __init__(self, csv_path, sequence_length) -> None:
         super().__init__()
 
-        self.args = args
-        self.measure_of_interest = measure_of_interest
+        csv = pd.read_csv(csv_path)
+        csv = csv.fillna(value=0)
+        assert all(attrib in csv.columns for attrib in attributes_of_interest)
 
-        self.csv_data: pd.DataFrame = pd.read_csv(args.csv_path)
-        assert all(
-            attrib in self.csv_data.columns for attrib in attributes_of_interest)
-        self.data_of_interest: pd.DataFrame = self.csv_data[measure_of_interest]
-        self.auto_regressive_data = self._generate_sequences()
+        temperature_list = csv['temp'].tolist()
+        pressure_list = csv['pressure'].tolist()
+        humidity_list = csv['humidity'].tolist()
+        wind_speed_list = csv['wind_speed'].tolist()
+        rainfall_list = csv['rain_1h'].tolist()
 
-    def __getitem__(self, index) -> Dict:
-        sample = self.auto_regressive_data[index]
-        return torch.Tensor(sample['seq']), torch.Tensor(sample['tgt'])
+        time_list = csv['dt_iso'].tolist()
+        date_list = [time.split(' ')[0] for time in time_list]
+        month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
 
-    def __len__(self) -> int:
-        return len(self.auto_regressive_data)
+        x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list, month_list]
+        y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list]
 
-    def _generate_sequences(self) -> List[Dict[str, List]]:
-        ret = []
+        self.data: List[Dict[str, torch.Tensor]] = []
 
-        print("==> Generating sequences...")
-        for idx in trange(self.data_of_interest.shape[0] - self.args.look_back_window):
-            seq = self.data_of_interest[idx:idx +
-                                        self.args.look_back_window].values
-            tgt = self.data_of_interest[idx + self.args.look_back_window:idx +
-                                        self.args.look_back_window + self.args.prediction_window].values
-            ret.append({'seq': seq, 'tgt': tgt})
+        start = 0
+        end = sequence_length
+        num_time_steps = len(temperature_list)
+        while start < num_time_steps - 1:
+            if end > num_time_steps - 1:
+                end = num_time_steps - 1
 
-        return ret
+            x = torch.stack(
+                [torch.as_tensor(l[start:end]) 
+                 for l in x_list], dim=0).T
+            y = torch.stack(
+                [torch.as_tensor(l[start+1:end+1]) 
+                 for l in y_list], dim=0).T
 
+            self.data.append({'x': x, 'y': y})
 
-class ClassificationDataset(Dataset):
-    def __init__(self) -> None:
-        super().__init__()
+            start += sequence_length
+            end += sequence_length
 
     def __getitem__(self, index):
-        return super().__getitem__(index)
-    
-    def __len__():
-        pass
+        sample = self.data[index]
+        return sample['x'], sample['y']
+
+    def __len__(self) -> int:
+        return len(self.data)
+
+
+def get_weather_dataloaders(csv_path, sequence_length, train_test_ratio, batch_size):
+    dataset = AutoRegressionDataset(csv_path, sequence_length)
+    train_size = int((train_test_ratio / (train_test_ratio + 1)) * len(dataset))
+    train_dataset = dataset[:train_size]
+    test_dataset = dataset[train_size:]
+
+    train_dataloader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
+    test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+
+    return train_dataloader, test_dataloader

@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
-from utils import get_weather_dataloader
-from Model import Forecaster
-from common import measures
+from WeatherDataset import get_weather_dataloaders
+from models.Forecaster import Forecaster
 from tqdm import tqdm
+from common import *
 
 
 class Trainer(object):
@@ -25,65 +25,52 @@ class Trainer(object):
     def _eval(self):
         pass
 
-    def _eval_needed(self, epoch):
-        pass
-
-
-class ForecasterTrainer(Trainer):
-    def __init__(self, args) -> None:
-        super().__init__(args)
-        
-        self.train_dataloaders = {m: get_weather_dataloader(args, type='train', measure_of_interest=m) for m in measures}
-        self.test_dataloader = {m: get_weather_dataloader(args, type='test', measure_of_interest=m) for m in measures}
-
-        self.forecasters = {m: Forecaster(args) for m in measures}
-        self.optimizers = {m: torch.optim.AdamW(params=self.forecasters[m].parameters(), lr=args.lr) for m in measures}
-
-        self.criterion = nn.MSELoss()
-
-        self.train_loss_records = {m: [] for m in measures}
-        self.test_loss_records = {m: [] for m in measures}
-
-    def _train(self):
-        for m in measures:
-            train_dataloader = self.train_dataloaders[m]
-            forecaster = self.forecasters[m].train()
-            optimizer = self.optimizers[m]
-            train_loss_record = self.train_loss_records[m]
-
-            for batch_id, (seq_batch, tgt_batch) in tqdm(enumerate(train_dataloader), total=len(train_dataloader)):
-                pred_batch = forecaster(seq_batch)
-                loss = self.criterion(pred_batch, tgt_batch)
-                optimizer.zero_grad()
-                loss.backward()
-                optimizer.step()
-
-                train_loss_record.append(loss.item())
-
-    def _eval(self):
-        for m in measures:
-            test_dataloder = self.test_dataloader[m]
-            forecaster = self.forecasters[m].eval()
-            test_loss_record = self.test_loss_records[m]
-
-            for batch_id, (seq_batch, tgt_batch) in tqdm(enumerate(test_dataloder), total=len(test_dataloder)):
-                pred_batch = forecaster(seq_batch)
-                loss = self.criterion(pred_batch, tgt_batch)
-                test_loss_record.append(loss.item())
-
-    def _eval_needed(self, epoch):
+    def _eval_needed(self, epoch) -> bool:
         return (epoch + 1) % self.args.eval_interval == 0
 
 
-class ClassifierTrainer(Trainer):
+class ForecasterTrainer_V1(Trainer):
     def __init__(self, args) -> None:
         super().__init__(args)
+        
+        self.train_dataloader, self.test_dataloader = get_weather_dataloaders(
+            args.csv_path, args.sequence_length, args.train_test_ratio, args.batch_size)
+
+        lstm_config = {
+            'input_size': len(names_for_input_features),
+            'hidden_size': args.lstm_hidden_size,
+            'num_layers': args.lstm_num_layers,
+            'dropout': args.lstm_dropout,
+            'batch_first': True,
+        }
+        mlp_config = {
+            'num_layers': args.mlp_num_layers,
+            'input_size': args.lstm_hidden_size,
+            'hidden_size': args.mlp_hidden_size,
+            'output_size': len(names_for_output_features),
+            'dropout': args.mlp_dropout,
+        }
+        self.forecaster = Forecaster(lstm_config, mlp_config)
+        self.optimizer = torch.optim.AdamW(params=self.forecaster.parameters(), lr=args.lr)
+        self.criterion = nn.MSELoss()
+
+        self.train_loss_records = []
+        self.test_loss_records = []
 
     def _train(self):
-        return super()._train()
-    
-    def _eval(self):
-        return super()._eval()
+        self.forecaster.train()
+        for batch_id, (seq_batch, tgt_batch) in tqdm(enumerate(self.train_dataloader), total=len(self.train_dataloader)):
+            pred_batch = self.forecaster(seq_batch)
+            loss = self.criterion(pred_batch, tgt_batch)
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+            self.train_loss_records.append(loss.item())
 
-    def _eval_needed(self, epoch):
-        return super()._eval_needed(epoch)
+    def _eval(self):
+        self.forecaster.eval()
+        with torch.no_grad():
+            for batch_id, (seq_batch, tgt_batch) in tqdm(enumerate(self.test_dataloder), total=len(self.test_dataloder)):
+                pred_batch = self.forecaster(seq_batch)
+                loss = self.criterion(pred_batch, tgt_batch)
+                self.test_loss_records.append(loss.item())
