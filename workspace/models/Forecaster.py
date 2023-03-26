@@ -6,6 +6,7 @@ class Forecaster(nn.Module):
     def __init__(self, lstm_config, mlp_config) -> None:
         super().__init__()
 
+        print("==> Creating model...")
         self.lstm = nn.LSTM(**lstm_config)
         self.mlp = MLP(**mlp_config)
 
