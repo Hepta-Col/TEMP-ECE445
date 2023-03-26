@@ -69,6 +69,6 @@ def get_weather_dataloaders(csv_path, sequence_length, train_test_ratio, batch_s
     test_dataset = AutoRegressionDataset(csv_data[train_size:], sequence_length)
 
     train_dataloader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
-    test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, drop_last=True)
+    test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, drop_last=False)
 
     return train_dataloader, test_dataloader
