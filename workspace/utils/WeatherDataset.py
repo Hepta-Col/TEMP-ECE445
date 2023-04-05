@@ -1,4 +1,5 @@
 import pdb
+import numpy as np
 import torch
 from torch.utils.data import Dataset, DataLoader
 import pandas as pd
@@ -56,10 +57,15 @@ class AutoRegressionDataset(Dataset):
         return len(self.data)
 
 
-def get_weather_dataloaders(csv_path, sequence_length, train_test_ratio, batch_size):
+def get_csv_data(csv_path):
     print(f"==> Reading csv from {csv_path}...")
     csv_data = pd.read_csv(csv_path)
-    csv_data = csv_data.fillna(value=0)
+    csv_data = csv_data.fillna(value=0) 
+    return csv_data
+
+
+def get_forecaster_training_dataloaders(csv_path, sequence_length, train_test_ratio, batch_size):
+    csv_data = get_csv_data(csv_path=csv_path)
     
     print(f"size of csv: {csv_data.shape[0]}")
     train_size = int((train_test_ratio / (train_test_ratio + 1)) * csv_data.shape[0])
@@ -72,3 +78,12 @@ def get_weather_dataloaders(csv_path, sequence_length, train_test_ratio, batch_s
     test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, drop_last=False)
 
     return train_dataloader, test_dataloader
+
+
+def get_classifier_training_dataset(csv_path):
+    csv_data = get_csv_data(csv_path=csv_path)
+    
+    X_array = csv_data[names_for_output_features].values
+    y_array = np.array([weather_descriptions.inverse[v] for v in csv_data['weather_description'].values])
+
+    return {"X": X_array, "y": y_array}    
