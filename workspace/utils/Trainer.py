@@ -2,11 +2,11 @@ import pdb
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from WeatherDataset import get_weather_dataloaders
+from utils.WeatherDataset import get_weather_dataloaders
 from models.Forecaster import Forecaster
 from tqdm import tqdm, trange
 import matplotlib.pyplot as plt
-from common import *
+from common.common import *
 
 
 class Trainer(object):
@@ -17,30 +17,34 @@ class Trainer(object):
         self.test_loss_records = []
 
     def train(self):
-        print("Training...")
+        print("==> Training...")
         train_loss = eval_loss = 0
         with tqdm(total=self.args.num_epochs) as pbar:
             for epoch in range(self.args.num_epochs):
                 pbar.set_description(f"Epoch {epoch}")
                 
-                train_loss = self._train()
-                if self._eval_needed(epoch):
-                    eval_loss = self._eval()
+                train_loss, model = self._train()
+                if self._test_needed(epoch):
+                    eval_loss = self._test()
                 
                 pbar.set_postfix(train_loss=train_loss,eval_loss=eval_loss)
                 pbar.update(1)
 
+        print("==> Saving model...")
+        torch.save(model.state_dict(), save_path)
+
+        print("==> Plotting...")
         self._plot_loss()
 
-    def _train(self) -> float:
+    def _train(self):
         """return average loss"""
         pass
 
-    def _eval(self) -> float:
+    def _test(self) -> float:
         """return average loss"""
         pass
 
-    def _eval_needed(self, epoch) -> bool:
+    def _test_needed(self, epoch) -> bool:
         return (epoch + 1) % self.args.eval_interval == 0
     
     def _avg(self, arr):
@@ -67,10 +71,10 @@ class ForecasterTrainer_V1(Trainer):
     def __init__(self, args) -> None:
         super().__init__(args)
         
-        self.device = args.device
+        self.device = device
         
         self.train_dataloader, self.test_dataloader = get_weather_dataloaders(
-            args.csv_path, args.sequence_length, args.train_test_ratio, args.batch_size)
+            csv_path, sequence_length, args.train_test_ratio, args.batch_size)
 
         lstm_config = {
             'input_size': len(names_for_input_features),
@@ -86,7 +90,7 @@ class ForecasterTrainer_V1(Trainer):
             'output_size': len(names_for_output_features),
             'dropout': args.mlp_dropout,
         }
-        self.forecaster = Forecaster(lstm_config, mlp_config).to(args.device)
+        self.forecaster = Forecaster(lstm_config, mlp_config).to(device)
         self.optimizer = torch.optim.AdamW(params=self.forecaster.parameters(), lr=args.lr)
         self.criterion = nn.MSELoss()
 
@@ -104,9 +108,9 @@ class ForecasterTrainer_V1(Trainer):
             _records.append(loss.item())
         avg_loss = self._avg(_records)
         self.train_loss_records.append(avg_loss) 
-        return avg_loss
+        return avg_loss, self.forecaster
 
-    def _eval(self):
+    def _test(self):
         self.forecaster.eval()
         _records = []
         with torch.no_grad():

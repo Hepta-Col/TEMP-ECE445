@@ -1,15 +1,11 @@
 import argparse
-from Trainer import ForecasterTrainer_V1
+from utils.Trainer import ForecasterTrainer_V1
 
 
 def _get_args():
     parser = argparse.ArgumentParser()
 
-    #! crucial
-    parser.add_argument('--sequence_length', type=int, default=24)   # orig: 24
-
     #! dataset
-    parser.add_argument('--csv_path', type=str, default="../data/haining_weather.csv")
     parser.add_argument('--train_test_ratio', type=float, default=9)
 
     #! training
@@ -27,7 +23,7 @@ def _get_args():
     parser.add_argument('--mlp_num_layers', type=int, default=1)
     parser.add_argument('--mlp_dropout', type=float, default=0.)   #! don't change this
 
-    """best combinations
+    """good combinations
     
     batch_size: 512
 
@@ -39,8 +35,6 @@ def _get_args():
     """
 
     args = parser.parse_args()
-    
-    args.device = 'cuda'
     
     return args
 

@@ -4,7 +4,7 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from typing import List, Dict
 from datetime import datetime
-from common import *
+from common.common import *
 
 
 class AutoRegressionDataset(Dataset):
