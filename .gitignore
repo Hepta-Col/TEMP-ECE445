@@ -4,4 +4,5 @@
 **/**.jpg
 **/**.out
 **/**.dot
-**/out
+**/figs
+**/logs
