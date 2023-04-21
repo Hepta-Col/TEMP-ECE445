@@ -12,8 +12,8 @@ class Forecaster(nn.Module):
 
     def forward(self, x):
         """
-        x: [batch size, sequence length, input size (6, [T, P, H, W, R, M])]
-        output: [batch size, sequence length, output size (5, [T, P, H, W, R])]
+        x: [batch size, sequence length, input size (5: [T, P, H, W, M])]
+        output: [batch size, sequence length, output size (4: [T, P, H, W])]
         """
         x, _ = self.lstm(x)
         batch_size, sequence_length, hidden_size = x.shape

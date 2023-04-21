@@ -5,7 +5,8 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from typing import List, Dict
 from datetime import datetime
-from common.common import *
+
+from common.config import *
 
 
 class AutoRegressionDataset(Dataset):
@@ -17,14 +18,16 @@ class AutoRegressionDataset(Dataset):
         pressure_list = csv_data['pressure'].tolist()
         humidity_list = csv_data['humidity'].tolist()
         wind_speed_list = csv_data['wind_speed'].tolist()
-        rainfall_list = csv_data['rain_1h'].tolist()
+        # rainfall_list = csv_data['rain_1h'].tolist()
 
         time_list = csv_data['dt_iso'].tolist()
         date_list = [time.split(' ')[0] for time in time_list]
         month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
 
-        x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list, month_list]
-        y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list]
+        # x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list, month_list]
+        # y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list]
+        x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, month_list]
+        y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, ]
 
         self.data: List[Dict[str, torch.Tensor]] = []
 
@@ -83,7 +86,14 @@ def get_forecaster_training_dataloaders(csv_path, sequence_length, train_test_ra
 def get_classifier_training_dataset(csv_path):
     csv_data = get_csv_data(csv_path=csv_path)
     
-    X_array = csv_data[names_for_output_features].values
+    time_list = csv_data['dt_iso'].tolist()
+    date_list = [time.split(' ')[0] for time in time_list]
+    month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
+    month_col = pd.DataFrame({'month': month_list})
+    
+    csv_data = pd.concat([csv_data, month_col], axis=1)
+    
+    X_array = csv_data[names_for_input_features].values
     y_array = np.array([weather_descriptions.inverse[v] for v in csv_data['weather_description'].values])
 
     return {"X": X_array, "y": y_array}    

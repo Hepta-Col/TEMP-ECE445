@@ -1,4 +1,5 @@
 import pdb
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -8,7 +9,8 @@ from models.Classifier import Classifier
 from tqdm import tqdm, trange
 import matplotlib.pyplot as plt
 import pickle as pkl
-from common.common import *
+
+from common.config import *
 
 
 class NaiveTrainer(object):
@@ -18,6 +20,11 @@ class NaiveTrainer(object):
     def _avg(self, arr):
         return sum(arr) / len(arr)
     
+    def _plot(self, x, y, plot_path):
+        plt.figure()
+        plt.plot(x, y)
+        plt.savefig(plot_path)
+        
     def train(self):
         pass
 
@@ -65,13 +72,8 @@ class DNNTrainer(NaiveTrainer):
         return (epoch + 1) % self.args.eval_interval == 0
     
     def _plot_loss(self):
-        plt.figure()
-        plt.plot(list(range(len(self.train_loss_records))), self.train_loss_records)
-        plt.savefig("./train loss.jpg")
-        
-        plt.figure()
-        plt.plot(list(range(len(self.test_loss_records))), self.test_loss_records)
-        plt.savefig("./test loss.jpg")
+        self._plot(list(range(len(self.train_loss_records))), self.train_loss_records, os.path.join(figs_dir, "train loss.jpg"))
+        self._plot(list(range(len(self.test_loss_records))), self.test_loss_records, os.path.join(figs_dir, "test loss.jpg"))        
 
     def _normalize(self, seq_data: torch.Tensor):
         """
@@ -113,8 +115,9 @@ class ForecasterTrainer_V1(DNNTrainer):
         _records = []
         for batch_id, (seq_batch, tgt_batch) in enumerate(self.train_dataloader):
             seq_batch = self._normalize(seq_batch).to(self.device)
-            tgt_batch = tgt_batch.to(self.device)
-            pred_batch = self.forecaster(seq_batch)
+            tgt_batch = tgt_batch.to(self.device)       #! [bs, seq len, output size]
+            pred_batch = self.forecaster(seq_batch)     #! [bs, seq len, output size]
+            
             loss = self.criterion(pred_batch, tgt_batch)
             self.optimizer.zero_grad()
             loss.backward()
@@ -152,13 +155,8 @@ class ClassifierTrainer_V1(NaiveTrainer):
         self.classifier.fit(X=self.training_data["X"], y=self.training_data["y"])
 
         print("==> Saving model...")
-        with open(classifier_save_path, 'wb') as f:
-            pkl.dump(self.classifier, f)
-
-        """Loading model:
-        with open(pkl_filename, 'rb') as file:
-            pickle_model = pickle.load(file)
-        """
+        self.classifier.save_to_pkl(classifier_save_path)
         
-        print("==> Visualizing tree...")
-        self.classifier.visualize()
+        if self.args.visualize_tree:
+            print("==> Visualizing tree...")
+            self.classifier.visualize()

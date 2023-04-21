@@ -1,14 +1,15 @@
 from bidict import bidict
+import torch
 
 
-device = "cuda"
+device = "cuda" if torch.cuda.is_available() else "cpu"
 
-sequence_length = 24
+sequence_length = 24    #! unit: hour
 
 attributes_of_interest = ['dt', 'dt_iso', 'temp', 'pressure',
-                          'humidity', 'wind_speed', 'rain_1h', 'weather_description']
-names_for_input_features = ['temp', 'pressure', 'humidity', 'wind_speed', 'rain_1h', 'month']
-names_for_output_features = ['temp', 'pressure', 'humidity', 'wind_speed', 'rain_1h']
+                          'humidity', 'wind_speed', 'weather_description']
+names_for_input_features = ['temp', 'pressure', 'humidity', 'wind_speed', 'month']
+names_for_output_features = ['temp', 'pressure', 'humidity', 'wind_speed', ]
 
 weather_descriptions = bidict({0: 'few clouds', 
                                1: 'light rain', 
@@ -25,4 +26,6 @@ weather_descriptions = bidict({0: 'few clouds',
 csv_path = "../data/haining_weather.csv"
 forecaster_save_path = "../out/saved_models/forecaster.pt"
 classifier_save_path = "../out/saved_models/classifier.pkl"
+
 figs_dir = "../out/figs"
+logs_dir = "../out/logs"

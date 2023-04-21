@@ -1,17 +1,18 @@
 import os
 import numpy as np
 import pandas as pd
+import pickle as pkl
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.preprocessing import LabelEncoder
 from sklearn import tree
 import graphviz
-from common.common import *
+from common.config import *
 
 
 class Classifier(object):
-    def __init__(self) -> None:
-        self.dtree = tree.DecisionTreeClassifier()  # set max_depth for visualization
+    def __init__(self, max_depth=None) -> None:
+        self.dtree = tree.DecisionTreeClassifier(max_depth=max_depth)  # set max_depth for visualization
         
     def fit(self, X, y):
         self.dtree = self.dtree.fit(X=X, y=y)
@@ -21,6 +22,14 @@ class Classifier(object):
 
     def predict_prob(self, X):
         return self.dtree.predict_proba(X=X)
+    
+    def save_to_pkl(self, pkl_filepath):
+        with open(pkl_filepath, 'wb') as f:
+            pkl.dump(self.dtree, f)
+    
+    def load_from_pkl(self, pkl_filepath):
+        with open(pkl_filepath, 'rb') as f:
+            self.dtree = pkl.load(f)
     
     def visualize(self):
         dot_data = tree.export_graphviz(self.dtree, 
