@@ -1,3 +1,4 @@
+import pdb
 import os
 import numpy as np
 import pandas as pd
@@ -18,10 +19,17 @@ class Classifier(object):
         self.dtree = self.dtree.fit(X=X, y=y)
         
     def predict(self, X):
-        return self.dtree.predict(X=X)
+        y = self.dtree.predict(X=X)
+        pdb.set_trace()
+        ret = []
+        for descrp_id in y:
+            description = weather_descriptions[descrp_id]
+            ret.append(description)
+        return ret
 
     def predict_prob(self, X):
-        return self.dtree.predict_proba(X=X)
+        y = self.dtree.predict_proba(X=X)
+        pdb.set_trace()
     
     def save_to_pkl(self, pkl_filepath):
         with open(pkl_filepath, 'wb') as f:

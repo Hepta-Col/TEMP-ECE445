@@ -22,10 +22,24 @@ def main():
         'dropout': args.mlp_dropout,
     }
     forecaster = Forecaster(lstm_config, mlp_config).to(device)
+    print("==> Loading forecaster...")
     forecaster.load_state_dict(torch.load(forecaster_save_path))
-    
+
+    """forecaster in & out:
+    y = forecaster(x)
+    x: torch.Tensor([batch size, sequence length, input size (5: [T, P, H, W, M])])
+    y: torch.Tensor([batch size, sequence length, output size (4: [T, P, H, W])])
+    """
+
     classifier = Classifier()
+    print("==> Loading classifier...")
     classifier.load_from_pkl(classifier_save_path)
+ 
+    """classifier in & out:
+    y = classifier.predict(X)
+    X: np.array([..., 5 (T, P, H, W, M)])
+    y: List[str]
+    """
     
 
 if __name__ == '__main__':
