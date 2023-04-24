@@ -7,11 +7,14 @@ from tqdm import trange
 from models.Forecaster import Forecaster
 from models.Classifier import Classifier
 from common.config import *
+from common.funcs import *
 
 
 class System(object):
     def __init__(self, args):
         super().__init__()
+
+        self.args = args
 
         print("==> Building forecaster...")
         lstm_config = {
@@ -56,8 +59,8 @@ class System(object):
         Args:
             historical_data (torch.Tensor): a Tensor with shape (24, 5) 
         """
-        assert historical_data.shape == (sequence_length, len(names_for_input_features))     # (24, 5)
-        historical_data = historical_data.unsqueeze(0).to(device)
+        assert historical_data.shape == (self.args.historical_length, len(names_for_input_features))     # (24, 5)
+        historical_data = normalize(historical_data.unsqueeze(0)).to(device)
         with torch.no_grad():
             pred = self.forecaster(historical_data)     # (1, 24, 4)
         next_hour_data = pred.squeeze()[-1].cpu()       # (4)
@@ -65,17 +68,17 @@ class System(object):
         next_hour_description = self.classifier.predict(classifier_input)[0]
         return next_hour_data, next_hour_description
     
-    def predict_multi_step(self, historical_data, num_future_hours):
+    def predict_multi_step(self, historical_data, num_steps):
         """get a series of future data based on historical data
 
         Args:
             historical_data (torch.Tensor): a Tensor with shape (24, 5) 
-            num_future_hours (int): number of future hours to predict
+            num_steps (int): number of future hours to predict
         """
         data_list = []
         description_list = []
         input_data = historical_data
-        for _ in trange(num_future_hours):
+        for _ in range(num_steps):
             next_hour_data, next_hour_description = self.predict_single_step(input_data)
             data_list.append(next_hour_data)
             description_list.append(next_hour_description)

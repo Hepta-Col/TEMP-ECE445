@@ -4,8 +4,6 @@ import torch
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-sequence_length = 24    #! unit: hour
-
 attributes_of_interest = ['dt', 'dt_iso', 'temp', 'pressure',
                           'humidity', 'wind_speed', 'weather_description']
 names_for_input_features = ['temp', 'pressure', 'humidity', 'wind_speed', 'month']

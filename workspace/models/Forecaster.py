@@ -16,10 +16,10 @@ class Forecaster(nn.Module):
         output: [batch size, sequence length, output size (4: [T, P, H, W])]
         """
         x, _ = self.lstm(x)
-        batch_size, sequence_length, hidden_size = x.shape
+        batch_size, historical_length, hidden_size = x.shape
         x = x.contiguous().view(-1, hidden_size)
         x = self.mlp(x)
         _, output_size = x.shape
-        x = x.contiguous().view(batch_size, sequence_length, output_size)
+        x = x.contiguous().view(batch_size, historical_length, output_size)
         
         return x

@@ -4,6 +4,10 @@ import argparse
 def get_args():
     parser = argparse.ArgumentParser()
 
+    #! crucial
+    parser.add_argument('--historical_length', type=int, default=24)
+    parser.add_argument('--prediction_length', type=int, default=12)
+
     #! dataset
     parser.add_argument('--train_test_ratio', type=float, default=9)
 

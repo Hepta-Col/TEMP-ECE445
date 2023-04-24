@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import pickle as pkl
 
 from common.config import *
+from common.funcs import *
 
 
 class NaiveTrainer(object):
@@ -75,13 +76,6 @@ class DNNTrainer(NaiveTrainer):
         self._plot(list(range(len(self.train_loss_records))), self.train_loss_records, os.path.join(figs_dir, "train loss.jpg"))
         self._plot(list(range(len(self.test_loss_records))), self.test_loss_records, os.path.join(figs_dir, "test loss.jpg"))        
 
-    def _normalize(self, seq_data: torch.Tensor):
-        """
-        seq_data: [bs, seq_len, input size (6)]
-        """
-        ret = F.normalize(seq_data, p=2, dim=1)
-        return ret
-
 
 class ForecasterTrainer_V1(DNNTrainer):
     def __init__(self, args) -> None:
@@ -90,7 +84,7 @@ class ForecasterTrainer_V1(DNNTrainer):
         self.device = device
         
         self.train_dataloader, self.test_dataloader = get_forecaster_training_dataloaders(
-            csv_path, sequence_length, args.train_test_ratio, args.batch_size)
+            csv_path, args.historical_length, args.train_test_ratio, args.batch_size)
 
         lstm_config = {
             'input_size': len(names_for_input_features),
@@ -114,7 +108,7 @@ class ForecasterTrainer_V1(DNNTrainer):
         self.forecaster.train()
         _records = []
         for batch_id, (seq_batch, tgt_batch) in enumerate(self.train_dataloader):
-            seq_batch = self._normalize(seq_batch).to(self.device)
+            seq_batch = normalize(seq_batch).to(self.device)
             tgt_batch = tgt_batch.to(self.device)       #! [bs, seq len, output size]
             pred_batch = self.forecaster(seq_batch)     #! [bs, seq len, output size]
             
@@ -132,7 +126,7 @@ class ForecasterTrainer_V1(DNNTrainer):
         _records = []
         with torch.no_grad():
             for batch_id, (seq_batch, tgt_batch) in enumerate(self.test_dataloader):
-                seq_batch = self._normalize(seq_batch).to(self.device)
+                seq_batch = normalize(seq_batch).to(self.device)
                 tgt_batch = tgt_batch.to(self.device)
                 
                 pred_batch = self.forecaster(seq_batch)
