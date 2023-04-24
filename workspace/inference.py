@@ -9,10 +9,11 @@ def main():
     system = System(args)
     
     test_data = torch.ones((24, 5))
+    data_list, description_list = system.predict_multi_step(test_data, 5)
     
-    out = system.predict_single_step(test_data)
-    
+    pdb.set_trace()
     
 
 if __name__ == '__main__':
     main()
+    print("main.py: DONE!")

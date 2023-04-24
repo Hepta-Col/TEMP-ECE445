@@ -19,7 +19,6 @@ class Classifier(object):
         
     def predict(self, X):
         y = self.dtree.predict(X=X)
-        pdb.set_trace()
         ret = []
         for descrp_id in y:
             description = weather_descriptions[descrp_id]

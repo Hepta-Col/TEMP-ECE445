@@ -2,6 +2,8 @@ import pdb
 import numpy as np
 import torch
 import torch.nn as nn
+from datetime import datetime
+from tqdm import trange
 from models.Forecaster import Forecaster
 from models.Classifier import Classifier
 from common.config import *
@@ -45,6 +47,8 @@ class System(object):
         X: np.array([..., 5 (T, P, H, W, M)])
         y: List[str]
         """
+        
+        self.month = datetime.now().month
 
     def predict_single_step(self, historical_data):
         """get the next hour data based on historical data
@@ -52,12 +56,13 @@ class System(object):
         Args:
             historical_data (torch.Tensor): a Tensor with shape (24, 5) 
         """
-        pdb.set_trace()
-        assert historical_data.shape == (sequence_length, len(names_for_input_features))
+        assert historical_data.shape == (sequence_length, len(names_for_input_features))     # (24, 5)
+        historical_data = historical_data.unsqueeze(0).to(device)
         with torch.no_grad():
-            pred = self.forecaster(historical_data)
-        next_hour_data = pred.squeeze()[-1]
-        next_hour_description = self.classifier.predict(next_hour_data.numpy())[0]
+            pred = self.forecaster(historical_data)     # (1, 24, 4)
+        next_hour_data = pred.squeeze()[-1].cpu()       # (4)
+        classifier_input = torch.cat((next_hour_data, torch.tensor(self.month).unsqueeze(0))).unsqueeze(0).numpy()
+        next_hour_description = self.classifier.predict(classifier_input)[0]
         return next_hour_data, next_hour_description
     
     def predict_multi_step(self, historical_data, num_future_hours):
@@ -70,10 +75,11 @@ class System(object):
         data_list = []
         description_list = []
         input_data = historical_data
-        for _ in range(num_future_hours):
+        for _ in trange(num_future_hours):
             next_hour_data, next_hour_description = self.predict_single_step(input_data)
             data_list.append(next_hour_data)
             description_list.append(next_hour_description)
-            input_data = torch.cat((input_data[1:], torch.from_numpy(next_hour_data).unsqueeze(0)), dim=0)
+            new_line = torch.cat((next_hour_data, torch.tensor(self.month).unsqueeze(0))).unsqueeze(0)
+            input_data = torch.cat((input_data[1:], new_line), dim=0)
         
         return data_list, description_list
