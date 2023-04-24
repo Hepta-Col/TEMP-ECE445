@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn.preprocessing import LabelEncoder
 from sklearn import tree
-import graphviz
 from common.config import *
 
 

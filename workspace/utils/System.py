@@ -1,3 +1,5 @@
+import pdb
+import numpy as np
 import torch
 import torch.nn as nn
 from models.Forecaster import Forecaster
@@ -24,8 +26,9 @@ class System(object):
             'output_size': len(names_for_output_features),
             'dropout': args.mlp_dropout,
         }
-        forecaster = Forecaster(lstm_config, mlp_config).to(device)
-        forecaster.load_state_dict(torch.load(forecaster_save_path))
+        self.forecaster = Forecaster(lstm_config, mlp_config).to(device)
+        self.forecaster.load_state_dict(torch.load(forecaster_save_path))
+        self.forecaster.eval()
 
         """forecaster in & out:
         y = forecaster(x)
@@ -34,15 +37,43 @@ class System(object):
         """
 
         print("==> Building classifier...")
-        classifier = Classifier()
-        classifier.load_from_pkl(classifier_save_path)
+        self.classifier = Classifier()
+        self.classifier.load_from_pkl(classifier_save_path)
     
         """classifier in & out:
         y = classifier.predict(X)
         X: np.array([..., 5 (T, P, H, W, M)])
         y: List[str]
         """
-        
+
+    def predict_single_step(self, historical_data):
+        """get the next hour data based on historical data
+
+        Args:
+            historical_data (torch.Tensor): a Tensor with shape (24, 5) 
+        """
+        pdb.set_trace()
+        assert historical_data.shape == (sequence_length, len(names_for_input_features))
+        with torch.no_grad():
+            pred = self.forecaster(historical_data)
+        next_hour_data = pred.squeeze()[-1]
+        next_hour_description = self.classifier.predict(next_hour_data.numpy())[0]
+        return next_hour_data, next_hour_description
     
+    def predict_multi_step(self, historical_data, num_future_hours):
+        """get a series of future data based on historical data
+
+        Args:
+            historical_data (torch.Tensor): a Tensor with shape (24, 5) 
+            num_future_hours (int): number of future hours to predict
+        """
+        data_list = []
+        description_list = []
+        input_data = historical_data
+        for _ in range(num_future_hours):
+            next_hour_data, next_hour_description = self.predict_single_step(input_data)
+            data_list.append(next_hour_data)
+            description_list.append(next_hour_description)
+            input_data = torch.cat((input_data[1:], torch.from_numpy(next_hour_data).unsqueeze(0)), dim=0)
         
-        
+        return data_list, description_list
