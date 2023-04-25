@@ -55,13 +55,15 @@ class System(object):
         
         self.month = datetime.now().month
 
-    def predict_single_step(self, historical_data) -> Prediction:
-        """get the next hour data based on historical data
+    def predict_single_step(self, historical_data: torch.Tensor) -> Prediction:
+        """get the next time step data based on historical data
 
         Args:
             historical_data (torch.Tensor): a Tensor with shape (24, 5) 
         """
+        assert isinstance(historical_data, torch.Tensor)
         assert historical_data.shape == (self.args.historical_length, len(names_for_input_features))     # (24, 5)
+        
         historical_data = normalize(historical_data.unsqueeze(0)).to(device)
         with torch.no_grad():
             pred = self.forecaster(historical_data)     # (1, 24, 4)
@@ -70,12 +72,12 @@ class System(object):
         next_step_description = self.classifier.predict(classifier_input)[0]
         return Prediction(next_step_data, next_step_description)
     
-    def predict_multi_step(self, historical_data, num_steps) -> List[Prediction]:
+    def predict_multi_step(self, historical_data: torch.Tensor, num_steps: int) -> List[Prediction]:
         """get a series of future data based on historical data
 
         Args:
             historical_data (torch.Tensor): a Tensor with shape (24, 5) 
-            num_steps (int): number of future hours to predict
+            num_steps (int): number of future time steps to predict
         """
         ret = []
         input_data = historical_data

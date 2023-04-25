@@ -5,4 +5,5 @@
 **/**.out
 **/**.dot
 **/figs
-**/logs
+**/bkp
+**/out

@@ -22,8 +22,8 @@ weather_descriptions = bidict({0: 'few clouds',
                                10: 'very heavy rain'})
 
 csv_path = "../data/haining_weather.csv"
-forecaster_save_path = "../out/saved_models/forecaster.pt"
-classifier_save_path = "../out/saved_models/classifier.pkl"
+forecaster_save_path = "../saved_models/forecaster.pt"
+classifier_save_path = "../saved_models/classifier.pkl"
 
 figs_dir = "../out/figs"
 logs_dir = "../out/logs"

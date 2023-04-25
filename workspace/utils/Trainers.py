@@ -18,14 +18,6 @@ class NaiveTrainer(object):
     def __init__(self, args) -> None:
         self.args = args
 
-    def _avg(self, arr):
-        return sum(arr) / len(arr)
-    
-    def _plot(self, x, y, plot_path):
-        plt.figure()
-        plt.plot(x, y)
-        plt.savefig(plot_path)
-        
     def train(self):
         pass
 
@@ -73,8 +65,8 @@ class DNNTrainer(NaiveTrainer):
         return (epoch + 1) % self.args.eval_interval == 0
     
     def _plot_loss(self):
-        self._plot(list(range(len(self.train_loss_records))), self.train_loss_records, os.path.join(figs_dir, "train loss.jpg"))
-        self._plot(list(range(len(self.test_loss_records))), self.test_loss_records, os.path.join(figs_dir, "test loss.jpg"))        
+        plot_single_curve(list(range(len(self.train_loss_records))), self.train_loss_records, os.path.join(figs_dir, "train loss.jpg"))
+        plot_single_curve(list(range(len(self.test_loss_records))), self.test_loss_records, os.path.join(figs_dir, "test loss.jpg"))        
 
 
 class ForecasterTrainer_V1(DNNTrainer):
@@ -110,14 +102,16 @@ class ForecasterTrainer_V1(DNNTrainer):
         for batch_id, (seq_batch, tgt_batch) in enumerate(self.train_dataloader):
             seq_batch = normalize(seq_batch).to(self.device)
             tgt_batch = tgt_batch.to(self.device)       #! [bs, seq len, output size]
+            tgt_batch[:, :, 0] *= 10
             pred_batch = self.forecaster(seq_batch)     #! [bs, seq len, output size]
+            pred_batch[:, :, 0] *= 10
             
             loss = self.criterion(pred_batch, tgt_batch)
             self.optimizer.zero_grad()
             loss.backward()
             self.optimizer.step()
             _records.append(loss.item())
-        avg_loss = self._avg(_records)
+        avg_loss = avg(_records)
         self.train_loss_records.append(avg_loss) 
         return avg_loss, self.forecaster
 
@@ -132,7 +126,7 @@ class ForecasterTrainer_V1(DNNTrainer):
                 pred_batch = self.forecaster(seq_batch)
                 loss = self.criterion(pred_batch, tgt_batch)
                 _records.append(loss.item())
-        avg_loss = self._avg(_records)
+        avg_loss = avg(_records)
         self.test_loss_records.append(avg_loss) 
         return avg_loss
 
