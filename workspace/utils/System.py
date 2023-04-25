@@ -53,7 +53,7 @@ class System(object):
         
         self.month = datetime.now().month
 
-    def predict_single_step(self, historical_data):
+    def _predict_single_step(self, historical_data):
         """get the next hour data based on historical data
 
         Args:
@@ -75,14 +75,17 @@ class System(object):
             historical_data (torch.Tensor): a Tensor with shape (24, 5) 
             num_steps (int): number of future hours to predict
         """
-        data_list = []
-        description_list = []
+        ret = []
         input_data = historical_data
         for _ in range(num_steps):
-            next_hour_data, next_hour_description = self.predict_single_step(input_data)
-            data_list.append(next_hour_data)
-            description_list.append(next_hour_description)
+            next_hour_data, next_hour_description = self._predict_single_step(input_data)
+            data_item = {'temperature': next_hour_data[0].item(),
+                         'pressure': next_hour_data[1].item(),
+                         'humidity': next_hour_data[2].item(),
+                         'wind speed': next_hour_data[3].item(),
+                         'description': next_hour_description}
             new_line = torch.cat((next_hour_data, torch.tensor(self.month).unsqueeze(0))).unsqueeze(0)
             input_data = torch.cat((input_data[1:], new_line), dim=0)
+            ret.append(data_item)
         
-        return data_list, description_list
+        return ret
