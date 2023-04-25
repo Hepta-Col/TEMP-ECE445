@@ -43,9 +43,10 @@ def main():
                 plt.plot(x, pred[i], color='g')
                 plt.savefig(os.path.join(figs_dir, f"{names[i]}.jpg"))
             
-            exit()
+            break
             
 
 if __name__ == '__main__':
     main()
     print("eval.py: DONE!")
+    open(os.path.join(out_root, "eval-DONE"), "w").close()

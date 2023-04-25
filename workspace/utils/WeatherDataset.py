@@ -24,8 +24,6 @@ class AutoRegressionDataset(Dataset):
         date_list = [time.split(' ')[0] for time in time_list]
         month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
 
-        # x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list, month_list]
-        # y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, rainfall_list]
         x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, month_list]
         y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, ]
 

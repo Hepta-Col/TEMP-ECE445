@@ -1,12 +1,20 @@
 import argparse
+import json
+from common.config import *
 
 
 def get_args():
     parser = argparse.ArgumentParser()
 
+    parser.add_argument('--train_forecaster', action='store_true')
+    parser.add_argument('--train_classifier', action='store_true')
+    
     #! crucial
     parser.add_argument('--historical_length', type=int, default=24)
     parser.add_argument('--prediction_length', type=int, default=12)
+
+    #! training
+    parser.add_argument('--save_models', action='store_true')
 
     #! dataset
     parser.add_argument('--train_test_ratio', type=float, default=9)
@@ -27,7 +35,7 @@ def get_args():
     parser.add_argument('--eval_interval', type=int, default=10)
     
     #! classifier
-    parser.add_argument('--visualize_tree', type=bool, default=False)
+    parser.add_argument('--visualize_tree', action='store_true')
 
     """good combinations
     
@@ -41,5 +49,7 @@ def get_args():
     """
 
     args = parser.parse_args()
+    
+    json.dump(args.__dict__, open(args_path, "w"))
     
     return args

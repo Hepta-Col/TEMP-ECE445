@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils.WeatherDataset import get_forecaster_training_dataloaders, get_classifier_training_dataset
+from utils.WeatherDataset import get_forecaster_train_one_epoching_dataloaders, get_classifier_train_one_epoching_dataset
 from models.Forecaster import Forecaster
 from models.Classifier import Classifier
 from tqdm import tqdm, trange
@@ -36,15 +36,16 @@ class DNNTrainer(NaiveTrainer):
             for epoch in range(self.args.num_epochs):
                 pbar.set_description(f"Epoch {epoch}")
                 
-                train_loss, model = self._train()
+                train_loss, model = self._train_one_epoch(epoch)
                 if self._test_needed(epoch):
-                    eval_loss = self._test()
+                    eval_loss = self._test(epoch)
                 
                 pbar.set_postfix(train_loss=train_loss,eval_loss=eval_loss)
                 pbar.update(1)
 
-        print("==> Saving model...")
-        torch.save(model.state_dict(), forecaster_save_path)
+        if self.args.save_models:
+            print("==> Saving model...")
+            torch.save(model.state_dict(), forecaster_save_path)
 
         """Loading model:
         model.load_state_dict(torch.load(forecaster_save_path))
@@ -53,11 +54,11 @@ class DNNTrainer(NaiveTrainer):
         print("==> Plotting...")
         self._plot_loss()
 
-    def _train(self):
+    def _train_one_epoch(self, epoch):
         """return average loss"""
         pass
 
-    def _test(self) -> float:
+    def _test(self, epoch) -> float:
         """return average loss"""
         pass
 
@@ -75,7 +76,7 @@ class ForecasterTrainer_V1(DNNTrainer):
         
         self.device = device
         
-        self.train_dataloader, self.test_dataloader = get_forecaster_training_dataloaders(
+        self.train_dataloader, self.test_dataloader = get_forecaster_train_one_epoching_dataloaders(
             csv_path, args.historical_length, args.train_test_ratio, args.batch_size)
 
         lstm_config = {
@@ -96,15 +97,15 @@ class ForecasterTrainer_V1(DNNTrainer):
         self.optimizer = torch.optim.AdamW(params=self.forecaster.parameters(), lr=args.lr)
         self.criterion = nn.MSELoss()
 
-    def _train(self):
+    def _train_one_epoch(self, epoch):
         self.forecaster.train()
         _records = []
         for batch_id, (seq_batch, tgt_batch) in enumerate(self.train_dataloader):
             seq_batch = normalize(seq_batch).to(self.device)
             tgt_batch = tgt_batch.to(self.device)       #! [bs, seq len, output size]
-            tgt_batch[:, :, 0] *= 10
+            tgt_batch[:, :, 0] *= 2
             pred_batch = self.forecaster(seq_batch)     #! [bs, seq len, output size]
-            pred_batch[:, :, 0] *= 10
+            pred_batch[:, :, 0] *= 2
             
             loss = self.criterion(pred_batch, tgt_batch)
             self.optimizer.zero_grad()
@@ -113,9 +114,12 @@ class ForecasterTrainer_V1(DNNTrainer):
             _records.append(loss.item())
         avg_loss = avg(_records)
         self.train_loss_records.append(avg_loss) 
+        with open(os.path.join(logs_dir, "train loss.txt"), "a") as f:
+            f.write(f"==> At epoch {epoch}, train avg loss: {avg_loss}\n")
+        
         return avg_loss, self.forecaster
 
-    def _test(self):
+    def _test(self, epoch):
         self.forecaster.eval()
         _records = []
         with torch.no_grad():
@@ -128,6 +132,9 @@ class ForecasterTrainer_V1(DNNTrainer):
                 _records.append(loss.item())
         avg_loss = avg(_records)
         self.test_loss_records.append(avg_loss) 
+        with open(os.path.join(logs_dir, "test loss.txt"), "a") as f:
+            f.write(f"==> At epoch {epoch}, test avg loss: {avg_loss}\n")
+        
         return avg_loss
 
 
@@ -135,15 +142,16 @@ class ClassifierTrainer_V1(NaiveTrainer):
     def __init__(self, args) -> None:
         super().__init__(args)
         
-        self.training_data = get_classifier_training_dataset(csv_path)
+        self.training_data = get_classifier_train_one_epoching_dataset(csv_path)
         self.classifier = Classifier()
     
     def train(self):
         print("==> Training classifier...")
         self.classifier.fit(X=self.training_data["X"], y=self.training_data["y"])
 
-        print("==> Saving model...")
-        self.classifier.save_to_pkl(classifier_save_path)
+        if self.args.save_models:
+            print("==> Saving model...")
+            self.classifier.save_to_pkl(classifier_save_path)
         
         if self.args.visualize_tree:
             print("==> Visualizing tree...")

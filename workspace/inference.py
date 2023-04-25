@@ -1,6 +1,8 @@
 import pdb
+import os
 import torch
 from common.args import get_args
+from common.config import *
 from utils.System import System
 
 import warnings
@@ -18,3 +20,4 @@ def main():
 if __name__ == '__main__':
     main()
     print("inference.py: DONE!")
+    open(os.path.join(out_root, "inference-DONE"), "w").close()

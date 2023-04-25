@@ -1,6 +1,11 @@
-from bidict import bidict
+import os
 import torch
+from bidict import bidict
+from datetime import datetime
 
+
+now = datetime.now()
+time = str(now.month) + "." + str(now.day) + "-" + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
@@ -25,5 +30,12 @@ csv_path = "../data/haining_weather.csv"
 forecaster_save_path = "../saved_models/forecaster.pt"
 classifier_save_path = "../saved_models/classifier.pkl"
 
-figs_dir = "../out/figs"
-logs_dir = "../out/logs"
+out_root = os.path.join("../out", time)
+
+figs_dir = os.path.join(out_root, "figs")
+logs_dir = os.path.join(out_root, "logs")
+
+os.makedirs(figs_dir)
+os.makedirs(logs_dir)
+
+args_path = os.path.join(out_root, "args.json")
