@@ -12,8 +12,7 @@ def main():
     system = System(args)
     
     data = torch.ones((24, 5))
-    prediction = system.predict_multi_step(data, 2)
-    print(prediction)
+    predictions = system.predict_multi_step(data, 24)
     
 
 if __name__ == '__main__':

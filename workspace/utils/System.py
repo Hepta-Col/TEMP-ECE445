@@ -4,10 +4,12 @@ import torch
 import torch.nn as nn
 from datetime import datetime
 from tqdm import trange
+from typing import List
 from models.Forecaster import Forecaster
 from models.Classifier import Classifier
 from common.config import *
 from common.funcs import *
+from utils.Prediction import Prediction
 
 
 class System(object):
@@ -53,7 +55,7 @@ class System(object):
         
         self.month = datetime.now().month
 
-    def _predict_single_step(self, historical_data):
+    def predict_single_step(self, historical_data) -> Prediction:
         """get the next hour data based on historical data
 
         Args:
@@ -63,12 +65,12 @@ class System(object):
         historical_data = normalize(historical_data.unsqueeze(0)).to(device)
         with torch.no_grad():
             pred = self.forecaster(historical_data)     # (1, 24, 4)
-        next_hour_data = pred.squeeze()[-1].cpu()       # (4)
-        classifier_input = torch.cat((next_hour_data, torch.tensor(self.month).unsqueeze(0))).unsqueeze(0).numpy()
-        next_hour_description = self.classifier.predict(classifier_input)[0]
-        return next_hour_data, next_hour_description
+        next_step_data = pred.squeeze()[-1].cpu()       # (4)
+        classifier_input = torch.cat((next_step_data, torch.tensor(self.month).unsqueeze(0))).unsqueeze(0).numpy()
+        next_step_description = self.classifier.predict(classifier_input)[0]
+        return Prediction(next_step_data, next_step_description)
     
-    def predict_multi_step(self, historical_data, num_steps):
+    def predict_multi_step(self, historical_data, num_steps) -> List[Prediction]:
         """get a series of future data based on historical data
 
         Args:
@@ -78,14 +80,9 @@ class System(object):
         ret = []
         input_data = historical_data
         for _ in range(num_steps):
-            next_hour_data, next_hour_description = self._predict_single_step(input_data)
-            data_item = {'temperature': next_hour_data[0].item(),
-                         'pressure': next_hour_data[1].item(),
-                         'humidity': next_hour_data[2].item(),
-                         'wind speed': next_hour_data[3].item(),
-                         'description': next_hour_description}
-            new_line = torch.cat((next_hour_data, torch.tensor(self.month).unsqueeze(0))).unsqueeze(0)
+            pred = self.predict_single_step(input_data)
+            new_line = torch.cat((pred.TPHW, torch.tensor(self.month).unsqueeze(0))).unsqueeze(0)
             input_data = torch.cat((input_data[1:], new_line), dim=0)
-            ret.append(data_item)
+            ret.append(pred)
         
         return ret
