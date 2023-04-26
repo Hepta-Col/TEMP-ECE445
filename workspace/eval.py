@@ -1,18 +1,14 @@
 import pdb
 import os
 import torch
-from common.args import get_args
+from common.args import args
 from common.config import *
 from common.funcs import *
 from utils.System import System
 from utils.WeatherDataset import get_system_evaluation_dataloader
 
-import warnings
-warnings.filterwarnings('ignore')
-
 
 def main():
-    args = get_args()
     system = System(args)
     
     dataloader = get_system_evaluation_dataloader(csv_path, args.historical_length, args.prediction_length)
@@ -41,7 +37,7 @@ def main():
                 plt.figure()
                 plt.plot(x, gt[i], color='r')
                 plt.plot(x, pred[i], color='g')
-                plt.savefig(os.path.join(figs_dir, f"{names[i]}.jpg"))
+                plt.savefig(os.path.join(args.figs_dir, f"{names[i]}.jpg"))
             
             break
             
@@ -49,4 +45,4 @@ def main():
 if __name__ == '__main__':
     main()
     print("eval.py: DONE!")
-    open(os.path.join(out_root, "eval-DONE"), "w").close()
+    open(os.path.join(args.out_root, "eval-DONE"), "w").close()

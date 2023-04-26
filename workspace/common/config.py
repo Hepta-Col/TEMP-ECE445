@@ -1,7 +1,19 @@
 import os
+import numpy as np
 import torch
+import random
 from bidict import bidict
 from datetime import datetime
+import warnings
+warnings.filterwarnings('ignore')
+
+
+seed = 3407
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
 
 
 now = datetime.now()
@@ -26,16 +38,11 @@ weather_descriptions = bidict({0: 'few clouds',
                                9: 'heavy intensity rain', 
                                10: 'very heavy rain'})
 
+#! input
 csv_path = "../data/haining_weather.csv"
+database_path =  "/root/qzt/TEMP-ECE445/data/weatherdata.db"
+
+#! intermediate
 forecaster_save_path = "../saved_models/forecaster.pt"
 classifier_save_path = "../saved_models/classifier.pkl"
 
-out_root = os.path.join("../out", time)
-
-figs_dir = os.path.join(out_root, "figs")
-logs_dir = os.path.join(out_root, "logs")
-
-os.makedirs(figs_dir)
-os.makedirs(logs_dir)
-
-args_path = os.path.join(out_root, "args.json")

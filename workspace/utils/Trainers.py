@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils.WeatherDataset import get_forecaster_train_one_epoching_dataloaders, get_classifier_train_one_epoching_dataset
+from utils.WeatherDataset import get_forecaster_training_dataloaders, get_classifier_training_dataset
 from models.Forecaster import Forecaster
 from models.Classifier import Classifier
 from tqdm import tqdm, trange
@@ -66,8 +66,8 @@ class DNNTrainer(NaiveTrainer):
         return (epoch + 1) % self.args.eval_interval == 0
     
     def _plot_loss(self):
-        plot_single_curve(list(range(len(self.train_loss_records))), self.train_loss_records, os.path.join(figs_dir, "train loss.jpg"))
-        plot_single_curve(list(range(len(self.test_loss_records))), self.test_loss_records, os.path.join(figs_dir, "test loss.jpg"))        
+        plot_single_curve(list(range(len(self.train_loss_records))), self.train_loss_records, os.path.join(self.args.figs_dir, "train loss.jpg"))
+        plot_single_curve(list(range(len(self.test_loss_records))), self.test_loss_records, os.path.join(self.args.figs_dir, "test loss.jpg"))        
 
 
 class ForecasterTrainer_V1(DNNTrainer):
@@ -76,7 +76,7 @@ class ForecasterTrainer_V1(DNNTrainer):
         
         self.device = device
         
-        self.train_dataloader, self.test_dataloader = get_forecaster_train_one_epoching_dataloaders(
+        self.train_dataloader, self.test_dataloader = get_forecaster_training_dataloaders(
             csv_path, args.historical_length, args.train_test_ratio, args.batch_size)
 
         lstm_config = {
@@ -114,7 +114,7 @@ class ForecasterTrainer_V1(DNNTrainer):
             _records.append(loss.item())
         avg_loss = avg(_records)
         self.train_loss_records.append(avg_loss) 
-        with open(os.path.join(logs_dir, "train loss.txt"), "a") as f:
+        with open(os.path.join(self.args.logs_dir, "train loss.txt"), "a") as f:
             f.write(f"==> At epoch {epoch}, train avg loss: {avg_loss}\n")
         
         return avg_loss, self.forecaster
@@ -132,7 +132,7 @@ class ForecasterTrainer_V1(DNNTrainer):
                 _records.append(loss.item())
         avg_loss = avg(_records)
         self.test_loss_records.append(avg_loss) 
-        with open(os.path.join(logs_dir, "test loss.txt"), "a") as f:
+        with open(os.path.join(self.args.logs_dir, "test loss.txt"), "a") as f:
             f.write(f"==> At epoch {epoch}, test avg loss: {avg_loss}\n")
         
         return avg_loss
@@ -142,7 +142,7 @@ class ClassifierTrainer_V1(NaiveTrainer):
     def __init__(self, args) -> None:
         super().__init__(args)
         
-        self.training_data = get_classifier_train_one_epoching_dataset(csv_path)
+        self.training_data = get_classifier_training_dataset(csv_path)
         self.classifier = Classifier()
     
     def train(self):
