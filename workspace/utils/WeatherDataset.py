@@ -9,29 +9,69 @@ from datetime import datetime
 from common.config import *
 
 
+def _transform_list(input_list, type: str, interval: int = 24):
+    input_arr = np.array(input_list)
+    
+    ret = []
+    start = 0
+    end = interval
+    
+    while end <= len(input_arr):
+        group = input_arr[start:end]
+        if type == 'avg':   
+            ret.append(group.mean())
+        elif type == 'min':
+            ret.append(group.min())
+        elif type == 'max':
+            ret.append(group.max())
+        elif type == 'first':
+            ret.append(group[0])
+        
+        start += interval
+        end += interval
+
+    return ret
+
+
 class AutoRegressionDataset(Dataset):
-    def __init__(self, csv_data: pd.DataFrame, historical_length: int) -> None:
+    def __init__(self, csv_data: pd.DataFrame, historical_length: int, granularity: str) -> None:
         super().__init__()
         assert all(attrib in csv_data.columns for attrib in attributes_of_interest)
 
-        temperature_list = csv_data['temp'].tolist()
+        temp_min_list = csv_data['temp_min'].tolist()
+        if granularity == 'day':
+            temp_min_list = _transform_list(temp_min_list, 'min')
+            
+        temp_max_list = csv_data['temp_max'].tolist()
+        if granularity == 'day':
+            temp_max_list = _transform_list(temp_max_list, 'max')
+            
         pressure_list = csv_data['pressure'].tolist()
+        if granularity == 'day':
+            pressure_list = _transform_list(pressure_list, 'avg')
+            
         humidity_list = csv_data['humidity'].tolist()
+        if granularity == 'day':
+            humidity_list = _transform_list(humidity_list, 'avg')        
+        
         wind_speed_list = csv_data['wind_speed'].tolist()
-        # rainfall_list = csv_data['rain_1h'].tolist()
+        if granularity == 'day':
+            wind_speed_list = _transform_list(wind_speed_list, 'avg') 
 
         time_list = csv_data['dt_iso'].tolist()
         date_list = [time.split(' ')[0] for time in time_list]
         month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
+        if granularity == 'day':
+            month_list = _transform_list(month_list, 'first') 
 
-        x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, month_list]
-        y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, ]
+        x_list = [temp_min_list, temp_max_list, pressure_list, humidity_list, wind_speed_list, month_list]
+        y_list = [temp_min_list, temp_max_list, pressure_list, humidity_list, wind_speed_list, ]
 
         self.data: List[Dict[str, torch.Tensor]] = []
-
+        
         start = 0
         end = historical_length
-        num_time_steps = len(temperature_list)
+        num_time_steps = len(temp_min_list)
         while start < num_time_steps - 1:
             if end > num_time_steps - 1:
                 break
@@ -47,41 +87,58 @@ class AutoRegressionDataset(Dataset):
 
             start += historical_length
             end += historical_length
-            
+        
         print(f"data size: {len(self.data)}")
 
     def __getitem__(self, index):
         sample = self.data[index]
-        return sample['x'], sample['y']
+        return sample['x'].float(), sample['y'].float()
 
     def __len__(self) -> int:
         return len(self.data)
 
 
 class PredictionDataset(Dataset):
-    def __init__(self, csv_data: pd.DataFrame, historical_length: int, prediction_length: int) -> None:
+    def __init__(self, csv_data: pd.DataFrame, historical_length: int, prediction_length: int, granularity: str) -> None:
         super().__init__()
         assert all(attrib in csv_data.columns for attrib in attributes_of_interest)
 
-        temperature_list = csv_data['temp'].tolist()
+        temp_min_list = csv_data['temp_min'].tolist()
+        if granularity == 'day':
+            temp_min_list = _transform_list(temp_min_list, 'min')
+            
+        temp_max_list = csv_data['temp_max'].tolist()
+        if granularity == 'day':
+            temp_max_list = _transform_list(temp_max_list, 'max')
+            
         pressure_list = csv_data['pressure'].tolist()
+        if granularity == 'day':
+            pressure_list = _transform_list(pressure_list, 'avg')
+            
         humidity_list = csv_data['humidity'].tolist()
+        if granularity == 'day':
+            humidity_list = _transform_list(humidity_list, 'avg')        
+        
         wind_speed_list = csv_data['wind_speed'].tolist()
+        if granularity == 'day':
+            wind_speed_list = _transform_list(wind_speed_list, 'avg') 
 
         time_list = csv_data['dt_iso'].tolist()
         date_list = [time.split(' ')[0] for time in time_list]
         month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
+        if granularity == 'day':
+            month_list = _transform_list(month_list, 'first') 
         
         description_list = csv_data['weather_description']
 
-        x_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, month_list]
-        y_list = [temperature_list, pressure_list, humidity_list, wind_speed_list, ]
+        x_list = [temp_min_list, temp_max_list, pressure_list, humidity_list, wind_speed_list, month_list]
+        y_list = [temp_min_list, temp_max_list, pressure_list, humidity_list, wind_speed_list, ]
 
         self.data: List[Dict[str, torch.Tensor]] = []
 
         start = 0
         end = historical_length
-        num_time_steps = len(temperature_list)
+        num_time_steps = len(temp_min_list)
         while start < num_time_steps - 1:
             if end > num_time_steps - 1:
                 break
@@ -103,7 +160,7 @@ class PredictionDataset(Dataset):
 
     def __getitem__(self, index):
         sample = self.data[index]
-        return sample['x'], sample['y'], sample['d']
+        return sample['x'].float(), sample['y'].float(), sample['d'].float()
 
     def __len__(self) -> int:
         return len(self.data)
@@ -116,15 +173,15 @@ def get_csv_data(csv_path):
     return csv_data
 
 
-def get_forecaster_training_dataloaders(csv_path, historical_length, train_test_ratio, batch_size):
+def get_forecaster_training_dataloaders(csv_path, historical_length, train_test_ratio, batch_size, granularity):
     csv_data = get_csv_data(csv_path=csv_path)
     
     print(f"size of csv: {csv_data.shape[0]}")
     train_size = int((train_test_ratio / (train_test_ratio + 1)) * csv_data.shape[0])
     print("Making train set...")
-    train_dataset = AutoRegressionDataset(csv_data[:train_size], historical_length)
+    train_dataset = AutoRegressionDataset(csv_data[:train_size], historical_length, granularity)
     print("Making test set...")
-    test_dataset = AutoRegressionDataset(csv_data[train_size:], historical_length)
+    test_dataset = AutoRegressionDataset(csv_data[train_size:], historical_length, granularity)
 
     train_dataloader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, drop_last=True)
     test_dataloader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False, drop_last=False)
@@ -132,11 +189,11 @@ def get_forecaster_training_dataloaders(csv_path, historical_length, train_test_
     return train_dataloader, test_dataloader
 
 
-def get_system_evaluation_dataloader(csv_path, historical_length, prediction_length):
+def get_system_evaluation_dataloader(csv_path, historical_length, prediction_length, granularity):
     csv_data = get_csv_data(csv_path=csv_path)
     
     print("Making evaluation set...")
-    eval_dataset = PredictionDataset(csv_data, historical_length, prediction_length)
+    eval_dataset = PredictionDataset(csv_data, historical_length, prediction_length, granularity)
 
     eval_dataloader = DataLoader(dataset=eval_dataset, batch_size=1, shuffle=False, drop_last=False)
 

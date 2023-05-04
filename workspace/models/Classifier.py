@@ -37,7 +37,7 @@ class Classifier(object):
         with open(pkl_filepath, 'rb') as f:
             self.dtree = pkl.load(f)
     
-    def visualize(self):
+    def visualize(self, figs_dir):
         dot_data = tree.export_graphviz(self.dtree, 
                                         out_file=os.path.join(figs_dir, "tree.dot"),
                                         feature_names=names_for_output_features,  

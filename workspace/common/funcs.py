@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 def normalize(seq_data: torch.Tensor):
     """
-    seq_data: [bs, seq_len, input size (5)]
+    seq_data: [bs, seq_len, input size]
     """
     assert seq_data.dim() == 3
     ret = F.normalize(seq_data, p=2, dim=1)

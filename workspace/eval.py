@@ -11,7 +11,7 @@ from utils.WeatherDataset import get_system_evaluation_dataloader
 def main():
     system = System(args)
     
-    dataloader = get_system_evaluation_dataloader(csv_path, args.historical_length, args.prediction_length)
+    dataloader = get_system_evaluation_dataloader(args.csv_path, args.historical_length, args.prediction_length, args.granularity)
     with torch.no_grad():
         for batch_id, (seq_batch, tgt_batch, descrp_batch) in enumerate(dataloader):
             history = seq_batch.squeeze()

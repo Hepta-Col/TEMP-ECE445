@@ -11,6 +11,7 @@ def get_args():
     parser.add_argument('--debug', action='store_true')
     
     #! crucial
+    parser.add_argument('--granularity', type=str, choices=['hour', 'day'])
     parser.add_argument('--historical_length', type=int, default=48)
     parser.add_argument('--prediction_length', type=int, default=12)
 
@@ -30,9 +31,9 @@ def get_args():
     parser.add_argument('--mlp_dropout', type=float, default=0.)   #! don't change this
 
     #! forecaster training
-    parser.add_argument('--num_epochs', type=int, default=1990)
-    parser.add_argument('--batch_size', type=int, default=512)
-    parser.add_argument('--lr', type=float, default=1e-2)
+    parser.add_argument('--batch_size', type=int, default=1)
+    parser.add_argument('--lr', type=float, default=1)
+    parser.add_argument('--num_epochs', type=int, default=1)
     parser.add_argument('--eval_interval', type=int, default=10)
     
     #! classifier
@@ -45,6 +46,29 @@ def get_args():
 
 args = get_args()
 
+if args.granularity == 'hour':
+    args.batch_size = 512
+    args.lr = 1e-2
+    args.num_epochs = 1550
+elif args.granularity == 'day':
+    args.batch_size = 64
+    args.lr = 1e-4
+    args.num_epochs = 15000
+
+
+#! input
+data_root = "../data"
+assert os.path.exists(data_root)
+args.csv_path = os.path.join(data_root, "haining_weather.csv")
+args.database_path = os.path.join(data_root, "weatherdata.db")
+
+#! intermediate
+save_root = "../saved_models/"
+if not os.path.exists(save_root):
+    os.makedirs(save_root)
+args.forecaster_save_path = os.path.join(save_root, f"forecaster_{args.granularity}.pt")
+args.classifier_save_path = os.path.join(save_root, "classifier.pkl")
+
 #! output
 f = lambda b: "[del] " if b else ""
 args.out_root = os.path.join("../out", f(args.debug) + time)
@@ -52,5 +76,6 @@ args.figs_dir = os.path.join(args.out_root, "figs")
 args.logs_dir = os.path.join(args.out_root, "logs")
 os.makedirs(args.figs_dir)
 os.makedirs(args.logs_dir)
+
 args_path = os.path.join(args.out_root, "args.json")
 json.dump(args.__dict__, open(args_path, "w"))

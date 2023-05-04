@@ -21,10 +21,10 @@ time = str(now.month) + "." + str(now.day) + "-" + str(now.hour) + ":" + str(now
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-attributes_of_interest = ['dt', 'dt_iso', 'temp', 'pressure',
+attributes_of_interest = ['dt_iso', 'temp_min', 'temp_max', 'pressure',
                           'humidity', 'wind_speed', 'weather_description']
-names_for_input_features = ['temp', 'pressure', 'humidity', 'wind_speed', 'month']
-names_for_output_features = ['temp', 'pressure', 'humidity', 'wind_speed', ]
+names_for_input_features = ['temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', 'month']
+names_for_output_features = ['temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', ]
 
 weather_descriptions = bidict({0: 'few clouds', 
                                1: 'light rain', 
@@ -37,12 +37,3 @@ weather_descriptions = bidict({0: 'few clouds',
                                8: 'moderate rain', 
                                9: 'heavy intensity rain', 
                                10: 'very heavy rain'})
-
-#! input
-csv_path = "../data/haining_weather.csv"
-database_path =  "/root/qzt/TEMP-ECE445/data/weatherdata.db"
-
-#! intermediate
-forecaster_save_path = "../saved_models/forecaster.pt"
-classifier_save_path = "../saved_models/classifier.pkl"
-

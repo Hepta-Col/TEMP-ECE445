@@ -45,7 +45,7 @@ class DNNTrainer(NaiveTrainer):
 
         if self.args.save_models:
             print("==> Saving model...")
-            torch.save(model.state_dict(), forecaster_save_path)
+            torch.save(model.state_dict(), self.args.forecaster_save_path)
 
         """Loading model:
         model.load_state_dict(torch.load(forecaster_save_path))
@@ -77,7 +77,7 @@ class ForecasterTrainer_V1(DNNTrainer):
         self.device = device
         
         self.train_dataloader, self.test_dataloader = get_forecaster_training_dataloaders(
-            csv_path, args.historical_length, args.train_test_ratio, args.batch_size)
+            args.csv_path, args.historical_length, args.train_test_ratio, args.batch_size, args.granularity)
 
         lstm_config = {
             'input_size': len(names_for_input_features),
@@ -104,8 +104,10 @@ class ForecasterTrainer_V1(DNNTrainer):
             seq_batch = normalize(seq_batch).to(self.device)
             tgt_batch = tgt_batch.to(self.device)       #! [bs, seq len, output size]
             tgt_batch[:, :, 0] *= 2
+            tgt_batch[:, :, 1] *= 2
             pred_batch = self.forecaster(seq_batch)     #! [bs, seq len, output size]
             pred_batch[:, :, 0] *= 2
+            pred_batch[:, :, 1] *= 2
             
             loss = self.criterion(pred_batch, tgt_batch)
             self.optimizer.zero_grad()
@@ -142,7 +144,7 @@ class ClassifierTrainer_V1(NaiveTrainer):
     def __init__(self, args) -> None:
         super().__init__(args)
         
-        self.training_data = get_classifier_training_dataset(csv_path)
+        self.training_data = get_classifier_training_dataset(args.csv_path)
         self.classifier = Classifier()
     
     def train(self):
@@ -151,7 +153,7 @@ class ClassifierTrainer_V1(NaiveTrainer):
 
         if self.args.save_models:
             print("==> Saving model...")
-            self.classifier.save_to_pkl(classifier_save_path)
+            self.classifier.save_to_pkl(self.args.classifier_save_path)
         
         if self.args.visualize_tree:
             print("==> Visualizing tree...")
