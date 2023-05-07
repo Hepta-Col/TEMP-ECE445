@@ -103,11 +103,11 @@ class ForecasterTrainer_V1(DNNTrainer):
         for batch_id, (seq_batch, tgt_batch) in enumerate(self.train_dataloader):
             seq_batch = normalize(seq_batch).to(self.device)
             tgt_batch = tgt_batch.to(self.device)       #! [bs, seq len, output size]
-            tgt_batch[:, :, 0] *= 2
-            tgt_batch[:, :, 1] *= 2
+            tgt_batch[:, :, 0] *= self.args.temperature_penalty
+            tgt_batch[:, :, 1] *= self.args.temperature_penalty
             pred_batch = self.forecaster(seq_batch)     #! [bs, seq len, output size]
-            pred_batch[:, :, 0] *= 2
-            pred_batch[:, :, 1] *= 2
+            pred_batch[:, :, 0] *= self.args.temperature_penalty
+            pred_batch[:, :, 1] *= self.args.temperature_penalty
             
             loss = self.criterion(pred_batch, tgt_batch)
             self.optimizer.zero_grad()

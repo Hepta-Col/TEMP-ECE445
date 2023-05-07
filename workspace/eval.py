@@ -14,33 +14,46 @@ def main():
     dataloader = get_system_evaluation_dataloader(args.csv_path, args.historical_length, args.prediction_length, args.granularity)
     with torch.no_grad():
         for batch_id, (seq_batch, tgt_batch, descrp_batch) in enumerate(dataloader):
+            if batch_id % (len(dataloader) // 10) != 0:
+                continue
+            
             history = seq_batch.squeeze()
             gt_data = tgt_batch.squeeze()
             gt_descriptions = [weather_descriptions[i.item()] for i in descrp_batch.squeeze()]
             predictions = system.predict_multi_step(history, args.prediction_length)
             
-            gt_t_list = gt_data[:,0].squeeze().tolist()
-            gt_p_list = gt_data[:,1].squeeze().tolist()
-            gt_h_list = gt_data[:,2].squeeze().tolist()
-            gt_w_list = gt_data[:,3].squeeze().tolist()
-            gt = [gt_t_list, gt_p_list, gt_h_list, gt_w_list]
+            gt_t_min_list = gt_data[:,0].squeeze().tolist()
+            gt_t_max_list = gt_data[:,1].squeeze().tolist()
+            gt_p_list = gt_data[:,2].squeeze().tolist()
+            gt_h_list = gt_data[:,3].squeeze().tolist()
+            gt_w_list = gt_data[:,4].squeeze().tolist()
+            gt = [gt_t_min_list, gt_t_max_list, gt_p_list, gt_h_list, gt_w_list]
             
-            pred_t_list = [pred.temperature for pred in predictions]
+            pred_t_min_list = [pred.temp_min for pred in predictions]
+            pred_t_max_list = [pred.temp_max for pred in predictions]
             pred_p_list = [pred.pressure for pred in predictions]
             pred_h_list = [pred.humidity for pred in predictions]
             pred_w_list = [pred.wind_speed for pred in predictions]
-            pred = [pred_t_list, pred_p_list, pred_h_list, pred_w_list]
+            pred = [pred_t_min_list, pred_t_max_list, pred_p_list, pred_h_list, pred_w_list]
             
-            x = list(range(args.prediction_length))
-            names = ["temperature", "pressure", "humidity", "wind_speed"]
-            for i in range(4):
-                plt.figure()
-                plt.plot(x, gt[i], color='r')
-                plt.plot(x, pred[i], color='g')
-                plt.savefig(os.path.join(args.figs_dir, f"{names[i]}.jpg"))
-            
-            break
-            
+            x = np.arange(args.prediction_length).astype(dtype=np.str)
+            names = ["temp_min", "temp_max", "pressure", "humidity", "wind_speed"]
+            units = ["Degree C", "Degree C", "hPa", "%", "m/s"]
+            assert len(names) == len(units)
+            fig, axs = plt.subplots(len(names), 1, sharex=True, figsize=(5,10))
+            axs = axs.ravel()
+            for i in range(len(names)):
+                axs[i].plot(x, gt[i], color='r', label='ground truth', marker='o')
+                axs[i].plot(x, pred[i], color='g', label='prediction', marker='o')
+                if axs[i].is_first_row():
+                    axs[i].legend()
+                if axs[i].is_last_row():
+                    axs[i].set_xlabel(f'{args.granularity}')
+                axs[i].set_ylabel(f'{names[i]}, {units[i]}')
+            fig.tight_layout()
+            savefig_path = os.path.join(args.figs_dir, f"Batch {batch_id}: Pred V.S. GT ({args.granularity}).jpg")
+            plt.savefig(savefig_path)
+
 
 if __name__ == '__main__':
     main()

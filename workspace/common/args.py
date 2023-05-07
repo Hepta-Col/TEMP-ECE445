@@ -13,7 +13,7 @@ def get_args():
     #! crucial
     parser.add_argument('--granularity', type=str, choices=['hour', 'day'])
     parser.add_argument('--historical_length', type=int, default=48)
-    parser.add_argument('--prediction_length', type=int, default=12)
+    parser.add_argument('--prediction_length', type=int, default=4)
 
     #! saving
     parser.add_argument('--save_models', action='store_true')
@@ -35,6 +35,7 @@ def get_args():
     parser.add_argument('--lr', type=float, default=1)
     parser.add_argument('--num_epochs', type=int, default=1)
     parser.add_argument('--eval_interval', type=int, default=10)
+    parser.add_argument('--temperature_penalty', type=float, default=2)
     
     #! classifier
     parser.add_argument('--visualize_tree', action='store_true')
@@ -49,11 +50,13 @@ args = get_args()
 if args.granularity == 'hour':
     args.batch_size = 512
     args.lr = 1e-2
-    args.num_epochs = 1550
+    # args.num_epochs = 1550
+    args.num_epochs = 3000
 elif args.granularity == 'day':
     args.batch_size = 64
     args.lr = 1e-4
-    args.num_epochs = 15000
+    # args.num_epochs = 15000
+    args.num_epochs = 30000
 
 
 #! input
