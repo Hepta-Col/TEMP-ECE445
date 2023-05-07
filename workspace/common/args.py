@@ -35,7 +35,7 @@ def get_args():
     parser.add_argument('--lr', type=float, default=1)
     parser.add_argument('--num_epochs', type=int, default=1)
     parser.add_argument('--eval_interval', type=int, default=10)
-    parser.add_argument('--temperature_penalty', type=float, default=2)
+    parser.add_argument('--temperature_penalty', type=float, default=4)
     
     #! classifier
     parser.add_argument('--visualize_tree', action='store_true')
@@ -50,13 +50,13 @@ args = get_args()
 if args.granularity == 'hour':
     args.batch_size = 512
     args.lr = 1e-2
-    # args.num_epochs = 1550
-    args.num_epochs = 3000
+    # args.num_epochs = 1550    # for penalty = 2
+    args.num_epochs = 3000      # for penalty = 4
 elif args.granularity == 'day':
     args.batch_size = 64
     args.lr = 1e-4
-    # args.num_epochs = 15000
-    args.num_epochs = 30000
+    # args.num_epochs = 15000   # for penalty = 2
+    args.num_epochs = 30000     # for penalty = 4
 
 
 #! input
