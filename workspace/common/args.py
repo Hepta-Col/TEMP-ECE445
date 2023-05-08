@@ -11,7 +11,7 @@ def get_args():
     parser.add_argument('--debug', action='store_true')
     
     #! crucial
-    parser.add_argument('--granularity', type=str, choices=['hour', 'day'])
+    parser.add_argument('--granularity', type=str, choices=['hour', 'day'], default='hour')
     parser.add_argument('--historical_length', type=int, default=48)
     parser.add_argument('--prediction_length', type=int, default=4)
 

@@ -36,22 +36,25 @@ def main():
             pred_w_list = [pred.wind_speed for pred in predictions]
             pred = [pred_t_min_list, pred_t_max_list, pred_p_list, pred_h_list, pred_w_list]
             
-            x = np.arange(args.prediction_length).astype(dtype=np.str)
+            x = np.arange(args.prediction_length).astype(dtype=int)
             names = ["temp_min", "temp_max", "pressure", "humidity", "wind_speed"]
             units = ["Degree C", "Degree C", "hPa", "%", "m/s"]
             assert len(names) == len(units)
-            fig, axs = plt.subplots(len(names), 1, sharex=True, figsize=(5,10))
+            fig, axs = plt.subplots(len(names), 1, sharex=True, figsize=(8,10))
             axs = axs.ravel()
             for i in range(len(names)):
                 axs[i].plot(x, gt[i], color='r', label='ground truth', marker='o')
                 axs[i].plot(x, pred[i], color='g', label='prediction', marker='o')
-                if axs[i].is_first_row():
+                assert len(x) == len(pred[i]) == len(gt[i])
+                for j in range(len(x)):
+                    axs[i].annotate(f"error={error(pred[i][j], gt[i][j])}", (x[j], (pred[i][j] + gt[i][j])/2))
+                if i == 0:
                     axs[i].legend()
-                if axs[i].is_last_row():
+                if i == len(names) - 1:
                     axs[i].set_xlabel(f'{args.granularity}')
                 axs[i].set_ylabel(f'{names[i]}, {units[i]}')
             fig.tight_layout()
-            savefig_path = os.path.join(args.figs_dir, f"Batch {batch_id}: Pred V.S. GT ({args.granularity}).jpg")
+            savefig_path = os.path.join(args.figs_dir, f"Batch {batch_id}-Pred V.S. GT ({args.granularity}).jpg")
             plt.savefig(savefig_path)
 
 

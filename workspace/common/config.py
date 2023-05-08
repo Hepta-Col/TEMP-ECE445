@@ -17,13 +17,12 @@ torch.cuda.manual_seed_all(seed)
 
 
 now = datetime.now()
-time = str(now.month) + "." + str(now.day) + "-" + str(now.hour) + ":" + str(now.minute) + ":" + str(now.second)
+time = str(now.month) + "." + str(now.day) + "-" + str(now.hour) + "." + str(now.minute) + "." + str(now.second)
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
-attributes_of_interest = ['dt_iso', 'temp_min', 'temp_max', 'pressure',
-                          'humidity', 'wind_speed', 'weather_description']
-names_for_input_features = ['temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', 'month']
+attributes_of_interest = ['dt_iso', 'temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', 'weather_description']
+names_for_input_features =  ['temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', 'month']
 names_for_output_features = ['temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', ]
 
 weather_descriptions = bidict({0: 'few clouds', 

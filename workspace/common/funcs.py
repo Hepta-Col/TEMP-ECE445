@@ -20,3 +20,6 @@ def avg(arr):
     assert len(arr) > 0
     return sum(arr) / len(arr)
 
+def error(pred, gt):
+    # return round(float(abs(gt-pred)/gt*100), 2)
+    return round(float(abs(pred - gt)), 2)
