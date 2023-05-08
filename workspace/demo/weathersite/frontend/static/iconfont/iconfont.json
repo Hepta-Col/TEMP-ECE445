@@ -1,0 +1,142 @@
+{
+  "id": "4053639",
+  "name": "weathersite",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "24064432",
+      "name": "防晒衣",
+      "font_class": "fangshaiyi",
+      "unicode": "e602",
+      "unicode_decimal": 58882
+    },
+    {
+      "icon_id": "7553635",
+      "name": "实时预测",
+      "font_class": "RectangleCopy",
+      "unicode": "e6df",
+      "unicode_decimal": 59103
+    },
+    {
+      "icon_id": "5173314",
+      "name": "墨镜-01",
+      "font_class": "mojing-",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "3834514",
+      "name": "遮阳伞",
+      "font_class": "yusan",
+      "unicode": "e62e",
+      "unicode_decimal": 58926
+    },
+    {
+      "icon_id": "5171394",
+      "name": "室内",
+      "font_class": "shineimdpi",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    },
+    {
+      "icon_id": "8224809",
+      "name": "业主室内-线性",
+      "font_class": "yezhushinei-xianxing",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "7766611",
+      "name": "美妆-防晒装",
+      "font_class": "huabanfuben",
+      "unicode": "e630",
+      "unicode_decimal": 58928
+    },
+    {
+      "icon_id": "23410694",
+      "name": "防晒霜",
+      "font_class": "fangshaishuang-01",
+      "unicode": "e607",
+      "unicode_decimal": 58887
+    },
+    {
+      "icon_id": "4139283",
+      "name": "戴口罩",
+      "font_class": "lkingbodaikouzhao",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "33820257",
+      "name": "口罩",
+      "font_class": "kouzhao",
+      "unicode": "e63c",
+      "unicode_decimal": 58940
+    },
+    {
+      "icon_id": "9080583",
+      "name": "alarm",
+      "font_class": "alarm",
+      "unicode": "e655",
+      "unicode_decimal": 58965
+    },
+    {
+      "icon_id": "5996724",
+      "name": "雨天",
+      "font_class": "rain",
+      "unicode": "e6f6",
+      "unicode_decimal": 59126
+    },
+    {
+      "icon_id": "8629263",
+      "name": "天气",
+      "font_class": "tianqi",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "14626444",
+      "name": "天气-雨天",
+      "font_class": "tianqi-yutian",
+      "unicode": "e6dc",
+      "unicode_decimal": 59100
+    },
+    {
+      "icon_id": "28784629",
+      "name": "空气质量",
+      "font_class": "kongqizhiliang",
+      "unicode": "e608",
+      "unicode_decimal": 58888
+    },
+    {
+      "icon_id": "21237419",
+      "name": "紫外线",
+      "font_class": "ziwaixian",
+      "unicode": "e640",
+      "unicode_decimal": 58944
+    },
+    {
+      "icon_id": "3145518",
+      "name": "大气压力",
+      "font_class": "daqiyali",
+      "unicode": "e60a",
+      "unicode_decimal": 58890
+    },
+    {
+      "icon_id": "14777442",
+      "name": "大风",
+      "font_class": "dafeng",
+      "unicode": "e759",
+      "unicode_decimal": 59225
+    },
+    {
+      "icon_id": "14002555",
+      "name": "湿度",
+      "font_class": "shidu",
+      "unicode": "e78b",
+      "unicode_decimal": 59275
+    }
+  ]
+}

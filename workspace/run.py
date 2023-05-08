@@ -11,8 +11,10 @@ from utils.System import System
 def main():
     # system = System(args)
     
-    # data = torch.ones((24, 5))
+    # data = torch.ones((48, 6))  # (historical length, 6 features TTPHWM) 
     # predictions = system.predict_multi_step(data, 2)
+    # for p in predictions:
+    #     print(p)
     
     num_lines = 0
     
