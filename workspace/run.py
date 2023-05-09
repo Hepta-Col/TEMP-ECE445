@@ -7,6 +7,8 @@ from common.args import args
 from common.config import *
 from utils.System import System
 
+from demo.search import retrieve_record
+
 
 def main():
     # system = System(args)
@@ -16,22 +18,21 @@ def main():
     # for p in predictions:
     #     print(p)
     
-    num_lines = 0
-    
-    pdb.set_trace()
-    
-    while True:
-        with sql.connect(database_path) as con:
-            df = pd.read_sql("SELECT * FROM weatherdata", con=con)
+    # num_lines = 0
+    # while True:
+    #     with sql.connect(args.database_path) as con:
+    #         df = pd.read_sql("SELECT * FROM weatherdata", con=con)
             
-            if df.shape[0] == num_lines:
-                continue
+    #         if df.shape[0] == num_lines:
+    #             continue
             
-            num_lines = df.shape[0]
+    #         num_lines = df.shape[0]
 
-            print(df.shape)
-            print(df.dtypes)
-            print(df.head())        
+    #         print(df.shape)
+    #         print(df.dtypes)
+    #         print(df.head())        
+    
+    record = retrieve_record()
 
 
 if __name__ == '__main__':
