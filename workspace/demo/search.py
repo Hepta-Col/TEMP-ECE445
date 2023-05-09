@@ -24,6 +24,7 @@ def get_mean(records):
     pm1 = 0
     pm2_5 = 0
     pm10 = 0
+    
     latest_time = records[-1][1]
 
     for i in range(len(records)):

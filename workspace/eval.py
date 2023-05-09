@@ -22,15 +22,15 @@ def main():
             gt_descriptions = [weather_descriptions[i.item()] for i in descrp_batch.squeeze()]
             predictions = system.predict_multi_step(history, args.prediction_length)
             
-            gt_t_min_list = gt_data[:,0].squeeze().tolist()
-            gt_t_max_list = gt_data[:,1].squeeze().tolist()
+            gt_t_min_list = [t + 273.15 for t in gt_data[:,0].squeeze().tolist()]
+            gt_t_max_list = [t + 273.15 for t in gt_data[:,1].squeeze().tolist()]
             gt_p_list = gt_data[:,2].squeeze().tolist()
             gt_h_list = gt_data[:,3].squeeze().tolist()
             gt_w_list = gt_data[:,4].squeeze().tolist()
             gt = [gt_t_min_list, gt_t_max_list, gt_p_list, gt_h_list, gt_w_list]
             
-            pred_t_min_list = [pred.temp_min for pred in predictions]
-            pred_t_max_list = [pred.temp_max for pred in predictions]
+            pred_t_min_list = [pred.temp_min + 273.15 for pred in predictions]
+            pred_t_max_list = [pred.temp_max + 273.15 for pred in predictions]
             pred_p_list = [pred.pressure for pred in predictions]
             pred_h_list = [pred.humidity for pred in predictions]
             pred_w_list = [pred.wind_speed for pred in predictions]
@@ -38,7 +38,7 @@ def main():
             
             x = np.arange(args.prediction_length).astype(dtype=int)
             names = ["temp_min", "temp_max", "pressure", "humidity", "wind_speed"]
-            units = ["Degree C", "Degree C", "hPa", "%", "m/s"]
+            units = ["K", "K", "hPa", "%", "m/s"]
             assert len(names) == len(units)
             fig, axs = plt.subplots(len(names), 1, sharex=True, figsize=(8,10))
             axs = axs.ravel()
@@ -46,8 +46,9 @@ def main():
                 axs[i].plot(x, gt[i], color='r', label='ground truth', marker='o')
                 axs[i].plot(x, pred[i], color='g', label='prediction', marker='o')
                 assert len(x) == len(pred[i]) == len(gt[i])
+                fluc = lambda b : f"\npred fluctuation={error(pred[i][j], pred[i][j-1], 'rel')}%" if b else ""
                 for j in range(len(x)):
-                    axs[i].annotate(f"error={error(pred[i][j], gt[i][j])}", (x[j], (pred[i][j] + gt[i][j])/2))
+                    axs[i].annotate(f"gap={error(pred[i][j], gt[i][j], 'abs')}\npred error={error(pred[i][j], gt[i][j], 'rel')}%" + fluc(j>0), (x[j], mid(pred[i][j], gt[i][j], 1/2)))
                 if i == 0:
                     axs[i].legend()
                 if i == len(names) - 1:

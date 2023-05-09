@@ -20,6 +20,13 @@ def avg(arr):
     assert len(arr) > 0
     return sum(arr) / len(arr)
 
-def error(pred, gt):
-    # return round(float(abs(gt-pred)/gt*100), 2)
-    return round(float(abs(pred - gt)), 2)
+def error(pred, gt, type):
+    if type == 'rel':
+        return round(float(abs(gt-pred)/gt*100), 2)
+    elif type == 'abs':
+        return round(float(abs(pred - gt)), 2)
+
+def mid(x1, x2, ratio):
+    small = min(x1, x2)
+    large = max(x1, x2)
+    return small + (large - small) * ratio
