@@ -12,7 +12,6 @@ from demo.search import retrieve_record
 
 def main():
     # system = System(args)
-    
     # data = torch.ones((48, 6))  # (historical length, 6 features TTPHWM) 
     # predictions = system.predict_multi_step(data, 2)
     # for p in predictions:
@@ -32,7 +31,9 @@ def main():
     #         print(df.dtypes)
     #         print(df.head())        
     
-    record = retrieve_record()
+    # cxy
+    record = retrieve_record(2)
+    print(record)
 
 
 if __name__ == '__main__':

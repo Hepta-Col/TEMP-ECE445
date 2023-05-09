@@ -30,3 +30,8 @@ def mid(x1, x2, ratio):
     small = min(x1, x2)
     large = max(x1, x2)
     return small + (large - small) * ratio
+
+def remove_anomalies(arr):
+    assert len(arr) > 2
+    sorted_arr = sorted(arr)
+    return sorted_arr[1:-1]

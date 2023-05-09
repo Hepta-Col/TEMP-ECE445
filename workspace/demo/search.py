@@ -49,23 +49,23 @@ def retrieve_record(min):
     """fetch newest data (unit: minute)"""
     
     time_check = datetime.datetime.now()
-    print("Now the time is: ", time_check)
+    # print("Now the time is: ", time_check)
 
     conn = sqlite3.connect(args.database_path)
-    print(f"Connected to database: {args.database_path}")
+    # print(f"Connected to database: {args.database_path}")
     
     cur = conn.cursor()
     query = "SELECT max(rowid) from weatherdata"
     cursor = cur.execute(query)
     max_line = cursor.fetchone()[0]
-    print("Database max line: ", max_line)   
+    # print("Database max line: ", max_line)   
 
     query = """SELECT * FROM weatherdata WHERE rowid > ?"""
     cursor = cur.execute(query, (max_line-15*min,))
     records = cursor.fetchall()
     
-    print(records)
-    print("\n")
+    # print(records)
+    # print()
     cur.close()   
 
     while 1:
@@ -76,11 +76,11 @@ def retrieve_record(min):
                 records.pop(0)
             else:
                 break
-    print(records)
+    # print(records)
 
     # cursor = cur.execute("Select * from (select rownum no ,serv_id from serv_history_517 ) where no>10")
 
-    print ("Records edited")
+    # print ("Records edited")
     conn.close()
 
     if len(records) == 0:
@@ -92,7 +92,3 @@ def retrieve_record(min):
     行数(id)，记录的时间(dd, time)，T, H, P(Pa), if rain, W, ...
     """
     return mean_record
-
-
-if __name__ == '__main__':
-    print(retrieve_record(1))

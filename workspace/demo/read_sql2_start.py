@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 
 import os
 
-engine = create_engine('sqlite:///C:\MyFiles\TEMP-ECE445\workspace\demo\weatherdata.db', echo=True)
+engine = create_engine('sqlite:///C:\MyFiles\TEMP-ECE445\data\weatherdata.db', echo=True)
 Base = declarative_base()
 
 class Weatherdata(Base):
