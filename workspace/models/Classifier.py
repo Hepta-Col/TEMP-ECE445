@@ -27,7 +27,7 @@ class Classifier(object):
 
     def predict_prob(self, X):
         y = self.dtree.predict_proba(X=X)
-        pdb.set_trace()
+        raise NotImplementedError()
     
     def save_to_pkl(self, pkl_filepath):
         with open(pkl_filepath, 'wb') as f:

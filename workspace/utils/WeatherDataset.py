@@ -5,6 +5,7 @@ from torch.utils.data import Dataset, DataLoader
 import pandas as pd
 from typing import List, Dict
 from datetime import datetime
+from tqdm import tqdm, trange
 
 from common.config import *
 
@@ -200,17 +201,59 @@ def get_system_evaluation_dataloader(csv_path, historical_length, prediction_len
     return eval_dataloader
 
 
-def get_classifier_training_dataset(csv_path):
-    csv_data = get_csv_data(csv_path=csv_path)
+def get_classifier_training_dataset(csv_path, new_csv_path, train_test_ratio):
+    def preprocess_table(csv_path, new_csv_path):
+        if os.path.exists(new_csv_path):
+            return pd.read_csv(new_csv_path)
     
-    time_list = csv_data['dt_iso'].tolist()
-    date_list = [time.split(' ')[0] for time in time_list]
-    month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
-    month_col = pd.DataFrame({'month': month_list})
-    
-    csv_data = pd.concat([csv_data, month_col], axis=1)
-    
-    X_array = csv_data[names_for_input_features].values
-    y_array = np.array([weather_descriptions.inverse[v] for v in csv_data['weather_description'].values])
+        csv_data = get_csv_data(csv_path=csv_path)
 
-    return {"X": X_array, "y": y_array}    
+        def reduce_description(description: str):
+            # if 'cloud' in description:
+            #     return 'cloudy'
+            # elif 'rain' in description:
+            #     return 'rainy'
+            # elif 'snow' in description:
+            #     return 'snowy'
+            # else:
+            #     return 'sunny'
+            
+            if 'rain' in description or 'snow' in description:
+                return 'rainy'
+            else:
+                return 'sky is clear'
+        
+        time_list = csv_data['dt_iso'].tolist()
+        date_list = [time.split(' ')[0] for time in time_list]
+        month_list = [datetime.strptime(date, '%Y-%m-%d').month for date in date_list]
+        month_col = pd.DataFrame({'month': month_list})
+        
+        csv_data = pd.concat([csv_data, month_col], axis=1)
+        
+        print("==> Reducing...")
+        for i in trange(csv_data.shape[0]):
+            try:
+                csv_data.loc[i, 'weather_description'] = reduce_description(csv_data.loc[i, 'weather_description'])
+            except:
+                pdb.set_trace()   
+        
+        print("==> Saving csv...")
+        csv_data.to_csv(new_csv_path)
+        
+        return csv_data
+
+    def get_X_and_y(csv_data):     
+        X_array = csv_data[names_for_input_features].values
+        y_array = np.array([weather_descriptions.inverse[v] for v in csv_data['weather_description'].values])
+        return X_array, y_array
+
+    csv_data = preprocess_table(csv_path, new_csv_path)
+    print(f"size of csv: {csv_data.shape[0]}")
+    train_size = int((train_test_ratio / (train_test_ratio + 1)) * csv_data.shape[0])
+    train_data, test_data = csv_data[:train_size].reset_index(), csv_data[train_size:].reset_index()
+    print("==> Making train data...")
+    train_X_array, train_y_array = get_X_and_y(train_data)
+    print("==> Making test data...")
+    test_X_array, test_y_array = get_X_and_y(test_data)
+
+    return {"X": train_X_array, "y": train_y_array}, {"X": test_X_array, "y": test_y_array}

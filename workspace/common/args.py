@@ -71,6 +71,7 @@ if not os.path.exists(save_root):
     os.makedirs(save_root)
 args.forecaster_save_path = os.path.join(save_root, f"forecaster_{args.granularity}.pt")
 args.classifier_save_path = os.path.join(save_root, "classifier.pkl")
+args.new_csv_path = os.path.join(data_root, "haining_weather_reduced.csv")
 
 #! output
 f = lambda b: "[del] " if b else ""

@@ -144,12 +144,12 @@ class ClassifierTrainer_V1(NaiveTrainer):
     def __init__(self, args) -> None:
         super().__init__(args)
         
-        self.training_data = get_classifier_training_dataset(args.csv_path)
+        self.train_data, self.test_data = get_classifier_training_dataset(args.csv_path, args.new_csv_path, args.train_test_ratio)
         self.classifier = Classifier()
     
     def train(self):
         print("==> Training classifier...")
-        self.classifier.fit(X=self.training_data["X"], y=self.training_data["y"])
+        self.classifier.fit(X=self.train_data["X"], y=self.train_data["y"])
 
         if self.args.save_models:
             print("==> Saving model...")
@@ -158,3 +158,17 @@ class ClassifierTrainer_V1(NaiveTrainer):
         if self.args.visualize_tree:
             print("==> Visualizing tree...")
             self.classifier.visualize()
+
+        hit_rate = self._test()
+        print(f"==> Total accuracy: {hit_rate * 100}%")
+
+    def _test(self):
+        def reverse_descriptions(arr):
+            ret = [weather_descriptions.inverse[d] for d in arr]
+            return np.array(ret)
+        print("==> Testing classifier...")
+        preds = self.classifier.predict(X=self.test_data["X"])
+        gts = self.test_data["y"]
+        preds, gts = reverse_descriptions(preds), np.array(gts)
+        assert len(preds) == len(gts)   
+        return sum(preds == gts) / len(preds)
