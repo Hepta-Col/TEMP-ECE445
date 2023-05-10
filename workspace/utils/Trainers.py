@@ -164,7 +164,7 @@ class ClassifierTrainer_V1(NaiveTrainer):
 
     def _test(self):
         def reverse_descriptions(arr):
-            ret = [weather_descriptions.inverse[d] for d in arr]
+            ret = [weather_descriptions_reduced.inverse[d] for d in arr]
             return np.array(ret)
         print("==> Testing classifier...")
         preds = self.classifier.predict(X=self.test_data["X"])

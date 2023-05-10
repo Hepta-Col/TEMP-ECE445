@@ -25,21 +25,16 @@ attributes_of_interest = ['dt_iso', 'temp_min', 'temp_max', 'pressure', 'humidit
 names_for_input_features =  ['temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', 'month']
 names_for_output_features = ['temp_min', 'temp_max', 'pressure', 'humidity', 'wind_speed', ]
 
-# weather_descriptions = bidict({0: 'few clouds', 
-#                                1: 'light rain', 
-#                                2: 'overcast clouds', 
-#                                3: 'sky is clear', 
-#                                4: 'light snow', 
-#                                5: 'broken clouds', 
-#                                6: 'scattered clouds', 
-#                                7: 'snow', 
-#                                8: 'moderate rain', 
-#                                9: 'heavy intensity rain', 
-#                                10: 'very heavy rain'})
+weather_descriptions = bidict({0: 'few clouds', 
+                               1: 'light rain', 
+                               2: 'overcast clouds', 
+                               3: 'sky is clear', 
+                               4: 'light snow', 
+                               5: 'broken clouds', 
+                               6: 'scattered clouds', 
+                               7: 'snow', 
+                               8: 'moderate rain', 
+                               9: 'heavy intensity rain', 
+                               10: 'very heavy rain'})
 
-# weather_descriptions = bidict({0: 'cloudy',
-#                                1: 'rainy',
-#                                2: 'sunny',
-#                                3: 'snowy'})
-
-weather_descriptions = bidict({0: 'rainy', 1: 'sky is clear'})
+weather_descriptions_reduced = bidict({0: 'rainy', 1: 'sky is clear'})
