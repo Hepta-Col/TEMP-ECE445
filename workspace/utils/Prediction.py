@@ -17,13 +17,12 @@ class Prediction(object):
     def __str__(self) -> str:
         ret = "Predictions:\n"
         
-        ret += f"==> Min Temperature: {self.temp_min}\n"
-        ret += f"==> Max Temperature: {self.temp_max}\n"
-        ret += f"==> Pressure: {self.pressure}\n"
-        ret += f"==> Humidity: {self.humidity}\n"
-        ret += f"==> Wind Speed: {self.wind_speed}\n"
-        
-        ret += f"==> Weather Description: {self.description}\n"
+        ret += f"- Min Temperature: {self.temp_min}\n"
+        ret += f"- Max Temperature: {self.temp_max}\n"
+        ret += f"- Pressure: {self.pressure}\n"
+        ret += f"- Humidity: {self.humidity}\n"
+        ret += f"- Wind Speed: {self.wind_speed}\n"
+        ret += f"- Weather Description: {self.description}\n"
         ret += "\n"
     
         return ret
