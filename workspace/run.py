@@ -83,7 +83,9 @@ def main():
                                           now_month]).unsqueeze(0)
                 model_input_buffer.append(data_item)
                 
-                if len(model_input_buffer) == args.historical_length:
+                if len(model_input_buffer) == args.historical_length / 24:
+                    model_input_buffer = model_input_buffer * 24
+                    
                     print("==> Model input buffer full")
                     print("==> Model input:")
                     model_input = torch.cat(model_input_buffer, dim=0)
@@ -97,16 +99,16 @@ def main():
                     print("==> Clearing model input buffer...")
                     model_input_buffer.clear()
                     
-                    s = [tm.localtime(tm.time())]
-                    s += [predictions[k].temp_min for k in range(args.prediction_length)]
-                    s += [predictions[k].temp_max for k in range(args.prediction_length)]
-                    s += [predictions[k].humidity for k in range(args.prediction_length)]
-                    s += [predictions[k].pressure for k in range(args.prediction_length)]
-                    s += [predictions[k].wind_speed for k in range(args.prediction_length)]
+                    # s = [tm.localtime(tm.time())]
+                    # s += [predictions[k].temp_min for k in range(args.prediction_length)]
+                    # s += [predictions[k].temp_max for k in range(args.prediction_length)]
+                    # s += [predictions[k].humidity for k in range(args.prediction_length)]
+                    # s += [predictions[k].pressure for k in range(args.prediction_length)]
+                    # s += [predictions[k].wind_speed for k in range(args.prediction_length)]
 
-                    print("==> Writing predictions...")
-                    write_predictions(s)
-                    s.clear()
+                    # print("==> Writing predictions...")
+                    # write_predictions(s)
+                    # s.clear()
 
 
 if __name__ == '__main__':

@@ -21,7 +21,7 @@ class Classifier(object):
         y = self.dtree.predict(X=X)
         ret = []
         for descrp_id in y:
-            description = weather_descriptions[descrp_id]
+            description = weather_descriptions_reduced[descrp_id]
             ret.append(description)
         return ret
 
