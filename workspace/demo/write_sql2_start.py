@@ -22,10 +22,15 @@ def write_predictions(s):
         
         time = Column(String(13))
         
-        temperature_1 = Column(String(5))
-        temperature_2 = Column(String(5))
-        temperature_3 = Column(String(5))
-        temperature_4 = Column(String(5))
+        temperature_min_1 = Column(String(5))
+        temperature_min_2 = Column(String(5))
+        temperature_min_3 = Column(String(5))
+        temperature_min_4 = Column(String(5))
+        
+        temperature_max_1 = Column(String(5))
+        temperature_max_2 = Column(String(5))
+        temperature_max_3 = Column(String(5))
+        temperature_max_4 = Column(String(5))
         
         humidity_1 = Column(String(5))
         humidity_2 = Column(String(5))
