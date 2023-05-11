@@ -8,6 +8,7 @@ from common.args import args
 from common.config import *
 from common.funcs import *
 from utils.System import System
+from demo.write_sql2_start import write_predictions
 
 
 def compress(buffer):
@@ -44,11 +45,12 @@ def main():
                 tm.sleep(0.05)
                 continue
             
-            print("==> New data comes in!")
+            print("\n==> New data comes in!")
             num_lines = df.shape[0]
             
             last_line: pd.Series = df.iloc[-1]
             print(last_line)
+            print(f"==> Buffers: stream buffer: {len(stream_buffer)}; model input buffer: {len(model_input_buffer)}")
             
             time = last_line['time']
             time = datetime.strptime(time, '%m.%d_%H.%M.%S')
@@ -83,14 +85,28 @@ def main():
                 
                 if len(model_input_buffer) == args.historical_length:
                     print("==> Model input buffer full")
-                    print("==> Making predictions...")
+                    print("==> Model input:")
                     model_input = torch.cat(model_input_buffer, dim=0)
+                    print(model_input)
+                    print("==> Making predictions...")
                     predictions = system.predict_multi_step(model_input, args.prediction_length)
-                    for i in len(predictions):
+                    assert len(predictions) == args.prediction_length
+                    for i in range(args.prediction_length):
                         print(f"==> Future step {i}:")
                         print(predictions[i])
                     print("==> Clearing model input buffer...")
                     model_input_buffer.clear()
+                    
+                    s = [tm.localtime(tm.time())]
+                    s += [predictions[k].temp_min for k in range(args.prediction_length)]
+                    s += [predictions[k].temp_max for k in range(args.prediction_length)]
+                    s += [predictions[k].humidity for k in range(args.prediction_length)]
+                    s += [predictions[k].pressure for k in range(args.prediction_length)]
+                    s += [predictions[k].wind_speed for k in range(args.prediction_length)]
+
+                    print("==> Writing predictions...")
+                    write_predictions(s)
+                    s.clear()
 
 
 if __name__ == '__main__':
