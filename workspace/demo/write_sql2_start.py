@@ -10,7 +10,7 @@ import os
 
 
 def write_predictions(s):
-    print("s: ", s)
+    # print("s: ", s)
     assert len(s) == 25
     
     engine = create_engine('sqlite:///C:\MyFiles\TEMP-ECE445\data\prediction.db', echo=True)

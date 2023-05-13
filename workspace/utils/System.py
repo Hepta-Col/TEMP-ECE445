@@ -62,6 +62,7 @@ class System(object):
             historical_data (torch.Tensor): a Tensor with shape (historical length, input size) 
         """
         assert isinstance(historical_data, torch.Tensor)
+        historical_data = torch.where(torch.isnan(historical_data), torch.full_like(historical_data, 0), historical_data)
         assert historical_data.shape == (self.args.historical_length, len(names_for_input_features))
         
         historical_data = normalize(historical_data.unsqueeze(0)).to(device)
