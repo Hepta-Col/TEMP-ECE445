@@ -1,1 +1,0 @@
-python eval.py --granularity hour

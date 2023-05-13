@@ -33,7 +33,7 @@ def main():
     num_lines = 0
     stream_buffer = []
     model_input_buffer = []
-    base_timestamp = datetime.now().minute
+    base_timestamp = datetime.now().hour
     
     while True:
         it = (it + 1) % 6
@@ -67,9 +67,9 @@ def main():
             
             stream_buffer.append(dict_)
 
-            if time.minute != base_timestamp and len(stream_buffer) > 2:
+            if time.hour != base_timestamp and len(stream_buffer) > 2:
                 print(f"==> Next timestamp. Length of stream buffer: {len(stream_buffer)}")
-                base_timestamp = time.minute
+                base_timestamp = time.hour
                 
                 temp_min, temp_max, pressure, humidity, wind_speed = compress(stream_buffer)
                 print("==> Clearing stream buffer...")
@@ -83,9 +83,7 @@ def main():
                                           now_month]).unsqueeze(0)
                 model_input_buffer.append(data_item)
                 
-                if len(model_input_buffer) == args.historical_length / 24:
-                    model_input_buffer = model_input_buffer * 24
-                    
+                if len(model_input_buffer) == args.historical_length:
                     print("==> Model input buffer full")
                     print("==> Model input:")
                     model_input = torch.cat(model_input_buffer, dim=0)
@@ -96,19 +94,22 @@ def main():
                     for i in range(args.prediction_length):
                         print(f"==> Future step {i}:")
                         print(predictions[i])
-                    print("==> Clearing model input buffer...")
-                    model_input_buffer.clear()
-                    
-                    # s = [tm.localtime(tm.time())]
-                    # s += [predictions[k].temp_min for k in range(args.prediction_length)]
-                    # s += [predictions[k].temp_max for k in range(args.prediction_length)]
-                    # s += [predictions[k].humidity for k in range(args.prediction_length)]
-                    # s += [predictions[k].pressure for k in range(args.prediction_length)]
-                    # s += [predictions[k].wind_speed for k in range(args.prediction_length)]
 
-                    # print("==> Writing predictions...")
-                    # write_predictions(s)
-                    # s.clear()
+                    model_input_buffer = model_input_buffer[1:]
+
+                    time_temp = tm.localtime(tm.time())
+                    time_tmp = "{0}.{1}_{2:0>2d}.{3:0>2d}.{4:0>2d}".format(time_temp[1],time_temp[2],time_temp[3],time_temp[4],time_temp[5])
+                    s = [time_tmp]
+                    s += [str(round(predictions[k].temp_min.item(), 2)) for k in range(args.prediction_length)]
+                    s += [str(round(predictions[k].temp_max.item(), 2)) for k in range(args.prediction_length)]
+                    s += [str(round(predictions[k].humidity.item(), 2)) for k in range(args.prediction_length)]
+                    s += [str(round(predictions[k].pressure.item(), 2)) for k in range(args.prediction_length)]
+                    s += [str(round(predictions[k].wind_speed.item(), 2)) for k in range(args.prediction_length)]
+                    s += [predictions[k].description for k in range(args.prediction_length)]
+
+                    print("==> Writing predictions...")
+                    write_predictions(s)
+                    s.clear()
 
 
 if __name__ == '__main__':

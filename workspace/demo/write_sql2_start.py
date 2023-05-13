@@ -10,7 +10,8 @@ import os
 
 
 def write_predictions(s):
-    assert len(s) == 21
+    print("s: ", s)
+    assert len(s) == 25
     
     engine = create_engine('sqlite:///C:\MyFiles\TEMP-ECE445\data\prediction.db', echo=True)
     Base = declarative_base()
@@ -47,6 +48,11 @@ def write_predictions(s):
         wind_3 = Column(String(4))
         wind_4 = Column(String(4))
         
+        description_1 = Column(String(3))
+        description_2 = Column(String(3))
+        description_3 = Column(String(3))
+        description_4 = Column(String(3))
+        
         def __str__(self):
             return self.id
 
@@ -78,6 +84,10 @@ def write_predictions(s):
                      wind_2 = s[18], 
                      wind_3 = s[19], 
                      wind_4 = s[20], 
+                     description_1 = s[21],
+                     description_2 = s[22],
+                     description_3 = s[23],
+                     description_4 = s[24],
                     )
 
     # 连接引擎

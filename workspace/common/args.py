@@ -64,6 +64,7 @@ data_root = "../data"
 assert os.path.exists(data_root)
 args.csv_path = os.path.join(data_root, "haining_weather.csv")
 args.database_path = os.path.join(data_root, "weatherdata.db")
+args.test_path = os.path.join(data_root, "test.csv")
 
 #! intermediate
 save_root = "../saved_models/"
