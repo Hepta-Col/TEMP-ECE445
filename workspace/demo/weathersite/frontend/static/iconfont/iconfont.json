@@ -6,6 +6,174 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "1451",
+      "name": "小雨",
+      "font_class": "xiaoyu",
+      "unicode": "e604",
+      "unicode_decimal": 58884
+    },
+    {
+      "icon_id": "685516",
+      "name": "中雨",
+      "font_class": "zhongyu",
+      "unicode": "e6fd",
+      "unicode_decimal": 59133
+    },
+    {
+      "icon_id": "5737998",
+      "name": "天气-3",
+      "font_class": "tianqi-",
+      "unicode": "ec65",
+      "unicode_decimal": 60517
+    },
+    {
+      "icon_id": "5737999",
+      "name": "天气-4",
+      "font_class": "tianqi-1",
+      "unicode": "ec66",
+      "unicode_decimal": 60518
+    },
+    {
+      "icon_id": "5738003",
+      "name": "天气-7",
+      "font_class": "tianqi-2",
+      "unicode": "ec67",
+      "unicode_decimal": 60519
+    },
+    {
+      "icon_id": "5996688",
+      "name": "暴雨",
+      "font_class": "weather-11",
+      "unicode": "e6e5",
+      "unicode_decimal": 59109
+    },
+    {
+      "icon_id": "5996694",
+      "name": "特大暴雨",
+      "font_class": "weather-13",
+      "unicode": "e6e6",
+      "unicode_decimal": 59110
+    },
+    {
+      "icon_id": "5996700",
+      "name": "大雪",
+      "font_class": "weather-17",
+      "unicode": "e6e9",
+      "unicode_decimal": 59113
+    },
+    {
+      "icon_id": "5996701",
+      "name": "中雪",
+      "font_class": "weather-16",
+      "unicode": "e6e8",
+      "unicode_decimal": 59112
+    },
+    {
+      "icon_id": "12842750",
+      "name": "w_天气",
+      "font_class": "w_tianqi",
+      "unicode": "e675",
+      "unicode_decimal": 58997
+    },
+    {
+      "icon_id": "16890738",
+      "name": "850hPa与5000hPa温度差",
+      "font_class": "850hPayu5000hPawenducha",
+      "unicode": "e63d",
+      "unicode_decimal": 58941
+    },
+    {
+      "icon_id": "16890744",
+      "name": "等露点温度线",
+      "font_class": "dengloudianwenduxian",
+      "unicode": "e63e",
+      "unicode_decimal": 58942
+    },
+    {
+      "icon_id": "16890750",
+      "name": "等温度线",
+      "font_class": "dengwenduxian",
+      "unicode": "e63f",
+      "unicode_decimal": 58943
+    },
+    {
+      "icon_id": "34198277",
+      "name": "分隔符",
+      "font_class": "fengefu",
+      "unicode": "e852",
+      "unicode_decimal": 59474
+    },
+    {
+      "icon_id": "17605421",
+      "name": "温度",
+      "font_class": "wendu1",
+      "unicode": "e80f",
+      "unicode_decimal": 59407
+    },
+    {
+      "icon_id": "4236642",
+      "name": "温度",
+      "font_class": "wendu",
+      "unicode": "e610",
+      "unicode_decimal": 58896
+    },
+    {
+      "icon_id": "6264949",
+      "name": "价格预测",
+      "font_class": "jiageyuce",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
+    },
+    {
+      "icon_id": "1407",
+      "name": "新生儿",
+      "font_class": "xinshenger",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "5158170",
+      "name": "婴儿",
+      "font_class": "yinger",
+      "unicode": "e618",
+      "unicode_decimal": 58904
+    },
+    {
+      "icon_id": "5257310",
+      "name": "儿童耳鼻喉-吞咽困难",
+      "font_class": "ertongerbihou-tunyankunnan",
+      "unicode": "e648",
+      "unicode_decimal": 58952
+    },
+    {
+      "icon_id": "7155369",
+      "name": "警示",
+      "font_class": "jingshi",
+      "unicode": "e656",
+      "unicode_decimal": 58966
+    },
+    {
+      "icon_id": "13673277",
+      "name": "口罩",
+      "font_class": "kouzhao1",
+      "unicode": "e636",
+      "unicode_decimal": 58934
+    },
+    {
+      "icon_id": "22453678",
+      "name": "EARLY_WARNING",
+      "font_class": "EARLY_WARNING",
+      "unicode": "e9cb",
+      "unicode_decimal": 59851
+    },
+    {
+      "icon_id": "22518829",
+      "name": "户外",
+      "font_class": "huwai",
+      "unicode": "e750",
+      "unicode_decimal": 59216
+    },
+    {
       "icon_id": "24064432",
       "name": "防晒衣",
       "font_class": "fangshaiyi",

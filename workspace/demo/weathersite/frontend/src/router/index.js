@@ -9,7 +9,7 @@ Vue.use(Router)
 export default new Router({
   routes: [
     {
-      path: '/',
+      path: '/hello',
       name: 'HelloWorld',
       component: HelloWorld
     },
@@ -19,7 +19,7 @@ export default new Router({
       component: Data
     },
     {
-      path: '/weather',
+      path: '/',
       name: 'Weather',
       component: Weather
     }

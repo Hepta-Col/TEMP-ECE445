@@ -180,5 +180,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-    print("run.py: DONE!")
+    print("run_realtime.py: DONE!")
     open(os.path.join(args.out_root, "run-DONE"), "w").close()

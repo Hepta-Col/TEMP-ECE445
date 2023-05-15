@@ -1,10 +1,11 @@
 <template>
-  <div id="app">
+  <div id="app" style="margin-top: 10px;">
     <!-- <img src="./assets/logo.png"> <br> -->
-    <router-link to="/">Root</router-link>
+    <!-- <router-link to="/">Root</router-link>
     <router-link to="/data">Data</router-link>
-    <router-link to="/weather">Weather</router-link>
-    <hr>
+    <router-link to="/weather">Weather</router-link> -->
+    <!-- <router-link to="/hello">Hello</router-link>
+    <hr> -->
     <router-view/>
   </div>
 </template>
