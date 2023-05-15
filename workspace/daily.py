@@ -10,6 +10,7 @@ from utils.System import System
 
 def main():
     print("==> Creating forecasting system...")
+    print(args.granularity)
     system = System(args)
     
     raw_data = pd.read_excel("C:\MyFiles\TEMP-ECE445\data\history.xls").fillna(0)

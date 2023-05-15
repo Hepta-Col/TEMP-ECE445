@@ -103,6 +103,7 @@ def do_prediction(system, model_input_buffer, time_record=None):
 
 
 def main():
+    print(args.granularity)
     system = System(args)
     now_month = float(datetime.now().month)
     

@@ -66,8 +66,10 @@ def main():
             savefig_path = os.path.join(args.figs_dir, f"Batch {batch_id}-Pred V.S. GT ({args.granularity}).jpg")
             plt.savefig(savefig_path)
 
+        txt = open("eval.txt", "w")
         for name in names:
             print(f"==> In terms of {name}:")
+            txt.write(f"==> In terms of {name}:\n")
             for i in range(args.prediction_length):
                 print(f"\t- Future {i+1} step:")
                 avg_gap = round(avg(records[name]["gap"][i]), 2)
@@ -77,6 +79,16 @@ def main():
                 if i > 0:
                     avg_fluc = round(avg(records[name]["fluc"][i]), 2)
                     print(f"\t\t- Average fluctuation: {avg_fluc}%")
+
+                txt.write(f"\t- Future {i+1} step:\n")
+                avg_gap = round(avg(records[name]["gap"][i]), 2)
+                txt.write(f"\t\t- Average gap: {avg_gap}\n")
+                avg_err = round(avg(records[name]["err"][i]), 2)
+                txt.write(f"\t\t- Average error: {avg_err}%\n")
+                if i > 0:
+                    avg_fluc = round(avg(records[name]["fluc"][i]), 2)
+                    txt.write(f"\t\t- Average fluctuation: {avg_fluc}%\n")
+        txt.close()
 
 
 if __name__ == '__main__':
