@@ -90,11 +90,11 @@ def do_prediction(system, model_input_buffer, time_record=None):
         time_temp = "{0}.{1}_{2:0>2d}.{3:0>2d}.{4:0>2d}".format(time_temp[1],time_temp[2],time_temp[3],time_temp[4],time_temp[5])
 
     s = [time_temp]
-    s += [str(round(predictions[k].temp_min.item(), 2)) for k in range(args.prediction_length)]
-    s += [str(round(predictions[k].temp_max.item(), 2)) for k in range(args.prediction_length)]
-    s += [str(round(predictions[k].humidity.item(), 2)) for k in range(args.prediction_length)]
-    s += [str(round(predictions[k].pressure.item(), 2)) for k in range(args.prediction_length)]
-    s += [str(round(predictions[k].wind_speed.item(), 2)) for k in range(args.prediction_length)]
+    s += [str(predictions[k].temp_min) for k in range(args.prediction_length)]
+    s += [str(predictions[k].temp_max) for k in range(args.prediction_length)]
+    s += [str(predictions[k].humidity) for k in range(args.prediction_length)]
+    s += [str(predictions[k].pressure) for k in range(args.prediction_length)]
+    s += [str(predictions[k].wind_speed) for k in range(args.prediction_length)]
     s += [predictions[k].description for k in range(args.prediction_length)]
 
     print("==> Writing predictions...")
@@ -139,7 +139,7 @@ def main():
                 
                 line_index += 1     #! <----
         print(f"==> Buffers: stream buffer: {len(stream_buffer)}; model input buffer: {len(model_input_buffer)}")
-    except:
+    except Exception as e:
         pdb.set_trace()
         pass
 
@@ -162,6 +162,7 @@ def main():
             print("\n==> New data comes in!")
             num_lines = df.shape[0]
             new_line, new_timestamp, _ = read_database(df, -1)
+            assert new_timestamp == (base_timestamp + 1) % 24, "Some data missing!"
             print(new_line)
             print(f"==> Buffers: stream buffer: {len(stream_buffer)}; model input buffer: {len(model_input_buffer)}")
             
@@ -181,4 +182,4 @@ def main():
 if __name__ == '__main__':
     main()
     print("run_realtime.py: DONE!")
-    open(os.path.join(args.out_root, "run-DONE"), "w").close()
+    open(os.path.join(args.out_root, "realtime-DONE"), "w").close()

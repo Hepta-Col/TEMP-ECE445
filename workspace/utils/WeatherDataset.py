@@ -190,11 +190,12 @@ def get_forecaster_training_dataloaders(csv_path, historical_length, train_test_
     return train_dataloader, test_dataloader
 
 
-def get_system_evaluation_dataloader(csv_path, historical_length, prediction_length, granularity):
+def get_system_evaluation_dataloader(csv_path, historical_length, train_test_ratio, prediction_length, granularity):
     csv_data = get_csv_data(csv_path=csv_path)
-    
+    print(f"size of csv: {csv_data.shape[0]}")
+    train_size = int((train_test_ratio / (train_test_ratio + 1)) * csv_data.shape[0])
     print("Making evaluation set...")
-    eval_dataset = PredictionDataset(csv_data, historical_length, prediction_length, granularity)
+    eval_dataset = PredictionDataset(csv_data[train_size:].reset_index(), historical_length, prediction_length, granularity)
 
     eval_dataloader = DataLoader(dataset=eval_dataset, batch_size=1, shuffle=False, drop_last=False)
 
