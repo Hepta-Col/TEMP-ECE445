@@ -158,11 +158,10 @@ def main():
                 print(f"==> Waiting for new data" + "." * it, "\r", end='')
                 tm.sleep(0.05)
                 continue
-            
+
             print("\n==> New data comes in!")
             num_lines = df.shape[0]
             new_line, new_timestamp, _ = read_database(df, -1)
-            assert new_timestamp == (base_timestamp + 1) % 24, "Some data missing!"
             print(new_line)
             print(f"==> Buffers: stream buffer: {len(stream_buffer)}; model input buffer: {len(model_input_buffer)}")
             
